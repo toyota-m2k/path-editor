@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "PathEdit (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "PathEdit (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
