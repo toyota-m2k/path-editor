@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Windows.Media;
 
 namespace PathEdit.Parser;
 internal class PathDrawable {
@@ -22,6 +23,15 @@ internal class PathDrawable {
             prevCommand = command;
         }
         graphics.Draw();
+    }
+
+    public PathDrawable Transform(Matrix matrix) {
+        var prevCommand = default(PathCommand?);
+        foreach (var command in _commands) {
+            command.Transform(matrix, prevCommand);
+            prevCommand = command;
+        }
+        return this;
     }
 
     public string Compose() {

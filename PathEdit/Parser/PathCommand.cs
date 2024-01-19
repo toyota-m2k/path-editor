@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser;
 internal abstract class PathCommand {
@@ -12,9 +13,30 @@ internal abstract class PathCommand {
     public abstract void DrawTo(IGraphics graphics, PathCommand? prevCommand);
     public abstract void ComposeTo(StringBuilder sb, PathCommand? prevCommand);
 
-    protected Point ResolveRelativePoint(Point point, Point? basePoint) {
+    public virtual void Transform(Matrix matrix, PathCommand? prevCommand) {
+        var endPoint = TransformPoint(matrix, EndPoint, prevCommand?.LastResolvedPoint);
+        EndPoint = endPoint;
+        LastResolvedPoint = ResolveRelativePoint(endPoint, prevCommand?.LastResolvedPoint);
+    }
+
+    protected Point TransformPoint(Matrix matrix, Point point, Point? basePoint) {
+        return Absolute2Relative(matrix.Transform(ResolveRelativePoint(point, basePoint)), basePoint);
+    }
+
+    protected Point Absolute2Relative(Point point, Point? basePoint) {
+        if (!IsRelative) {
+            return point;
+        }
         var bp = basePoint ?? PointZero;
-        return IsRelative ? new Point(point.X + bp.X, point.Y + bp.Y) : point;
+        return new Point(point.X - bp.X, point.Y - bp.Y);
+    }
+
+    protected Point ResolveRelativePoint(Point point, Point? basePoint) {
+        if (!IsRelative) {
+            return point;
+        }
+        var bp = basePoint ?? PointZero;
+        return new Point(point.X + bp.X, point.Y + bp.Y);
     }
 
     protected PathCommand(bool isRelative, Point endPoint) {

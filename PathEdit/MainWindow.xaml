@@ -11,6 +11,10 @@
     mc:Ignorable="d">
 
     <Grid>
+        <Grid.Resources>
+            <w:ResourceDictionary Source="./Converters.xaml"/>
+        </Grid.Resources>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -31,6 +35,30 @@
                 <PathIcon x:Name="pathIcon" Data="{x:Bind ViewModel.ComposedPath.Value, Mode=OneWay}"/>
             </Viewbox>
             <win2dcanvas:CanvasControl x:Name="PathCanvas" Width="400" Height="400" Draw="CanvasControl_Draw"/>
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Scale"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Pivot X: "/>
+                    <TextBox Text="{x:Bind ViewModel.ScalePivotX.Value, Mode=TwoWay}" Width="50"/>
+                    <TextBlock Text="  Y: "/>
+                    <TextBox Text="{x:Bind ViewModel.ScalePivotY.Value, Mode=TwoWay}" Width="50"/>
+                </StackPanel>
+                <CheckBox Content="Keep Aspect" IsChecked="{x:Bind ViewModel.KeepAspect.Value, Mode=TwoWay}"/>
+                <StackPanel Orientation="Horizontal" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource BoolVisibilityConverter}}">
+                    <TextBlock Text="Scale: "/>
+                    <TextBox Text="{x:Bind ViewModel.Scale.Value, Mode=TwoWay}" Width="50"/>
+                    <TextBlock Text=" %"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource NegBoolVisibilityConverter}}">
+                    <TextBlock Text="Scale X: "/>
+                    <TextBox Text="{x:Bind ViewModel.ScaleX.Value, Mode=TwoWay}" Width="50"/>
+                    <TextBlock Text=" % Y: "/>
+                    <TextBox Text="{x:Bind ViewModel.ScaleY.Value, Mode=TwoWay}" Width="50"/>
+                    <TextBlock Text=" %"/>
+                </StackPanel>
+                <Button Content="Scale" Command="{x:Bind ViewModel.ScaleCommand}"/>
+
+            </StackPanel>
         </StackPanel>
     </Grid>
 </w:Window>

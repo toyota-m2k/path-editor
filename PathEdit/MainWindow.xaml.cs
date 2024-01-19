@@ -27,6 +27,14 @@ namespace PathEdit {
             public ReactiveProperty<int> PathWidth { get; } = new (24);
             public ReactiveProperty<int> PathHeight { get; } = new (24);
 
+            public ReactiveProperty<bool> KeepAspect { get; } = new (true);
+            public ReactiveProperty<int> Scale { get; } = new (100);
+            public ReactiveProperty<int> ScaleX { get; } = new(100);
+            public ReactiveProperty<int> ScaleY { get; } = new(100);
+            public ReactiveProperty<int> ScalePivotX { get; } = new (0);
+            public ReactiveProperty<int> ScalePivotY { get; } = new(0);
+            public ReactiveCommand ScaleCommand { get; } = new ();
+
             //public ReadOnlyReactiveProperty<Geometry> PathData { get; }
 
             public MainWindowViewModel() {
@@ -63,6 +71,23 @@ namespace PathEdit {
             this.InitializeComponent();
             ViewModel.ComposedPath.Subscribe(_ => {
                 PathCanvas.Invalidate();
+            });
+            ViewModel.ScaleCommand.Subscribe(_ => {
+                try {
+                    var pivot = new System.Windows.Point(ViewModel.ScalePivotX.Value, ViewModel.ScalePivotY.Value);
+                    var matrix = new System.Windows.Media.Matrix();
+                    if (ViewModel.KeepAspect.Value) {
+                        var scale = ViewModel.Scale.Value / 100f;
+                        matrix.Scale(scale, scale);
+                    } else {
+                        var scaleX = ViewModel.ScaleX.Value / 100f;
+                        var scaleY = ViewModel.ScaleY.Value / 100f;
+                        matrix.Scale(scaleX, scaleY);
+                    }
+                    ViewModel.SourcePath.Value = PathDrawable.Parse(ViewModel.SourcePath.Value).Transform(matrix).Compose();
+                } catch (Exception e) {
+                    LoggerEx.error(e);
+                }
             });
         }
 

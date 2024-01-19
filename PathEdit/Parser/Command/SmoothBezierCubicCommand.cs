@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 internal class SmoothBezierCubicCommand : SmoothBezierCommand {
-    public Point Control2 { get; }
+    public Point Control2 { get; private set; }
     public SmoothBezierCubicCommand(bool isRelative, Point control, Point endPoint)
         : base(isRelative, endPoint, isCubic:true) {
         Control2 = control;
@@ -18,6 +19,11 @@ internal class SmoothBezierCubicCommand : SmoothBezierCommand {
         graphics.CurveTo(control1, control2, endPoint);
         LastResolvedPoint = endPoint;
         LastResolvedControl = control2;
+    }
+
+    public override void Transform(Matrix matrix, PathCommand? prevCommand) {
+        base.Transform(matrix, prevCommand);
+        Control2 = TransformPoint(matrix, Control2, prevCommand?.LastResolvedPoint);
     }
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
@@ -34,6 +40,7 @@ internal class SmoothBezierCubicCommand : SmoothBezierCommand {
         sb.Append(" ");
         sb.Append(EndPoint.Y);
     }
+
 
     public static IEnumerable<SmoothBezierCubicCommand> Parse(string command, List<double> paramList) {
         var lc = command.ToUpper();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 internal class MoveCommand : PathCommand {
@@ -28,6 +29,7 @@ internal class MoveCommand : PathCommand {
         sb.Append(" ");
         sb.Append(EndPoint.Y);
     }
+
 
     public static IEnumerable<MoveCommand> Parse(string command, List<double> paramList) {
         var lc = command.ToUpper();

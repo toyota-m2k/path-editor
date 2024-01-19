@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 internal class CloseCommand : PathCommand {
@@ -14,6 +15,8 @@ internal class CloseCommand : PathCommand {
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         sb.Append("Z");
+    }
+    public override void Transform(Matrix matrix, PathCommand? prevCommand) {
     }
 
     public static IEnumerable<CloseCommand> Parse(string command, List<double> paramList) {

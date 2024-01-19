@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 internal class BezierCubicCommand : BezierCommand {
-    public Point Control1 { get; }
-    public Point Control2 { get; }
+    public Point Control1 { get; private set; }
+    public Point Control2 { get; private set; }
 
     public BezierCubicCommand(bool isRelative, Point control1, Point control2, Point endPoint)
         : base(isRelative, endPoint, true) {
@@ -21,6 +22,12 @@ internal class BezierCubicCommand : BezierCommand {
         graphics.CurveTo(control1, control2, endPoint);
         LastResolvedPoint = endPoint;
         LastResolvedControl = control2;
+    }
+
+    public override void Transform(Matrix matrix, PathCommand? prevCommand) {
+        base.Transform(matrix, prevCommand);
+        Control1 = TransformPoint(matrix, Control1, prevCommand?.LastResolvedPoint);
+        Control2 = TransformPoint(matrix, Control2, prevCommand?.LastResolvedPoint);
     }
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {

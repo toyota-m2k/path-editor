@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 internal class ArcCommand : PathCommand {
-    public Size Radius{ get; }
-    public double RotationAngle { get; }
+    public Size Radius { get; private set; }
+    public double RotationAngle { get; private set; }
     public bool IsLargeArc { get; }
     public bool SweepDirection { get; }
 
@@ -43,6 +44,14 @@ internal class ArcCommand : PathCommand {
         sb.Append($",{(IsLargeArc ? 1 : 0)}");
         sb.Append($",{(SweepDirection ? 1 : 0)}");
         sb.Append($",{EndPoint.X},{EndPoint.Y}");
+    }
+
+    public override void Transform(Matrix matrix, PathCommand? prevCommand) {
+        base.Transform(matrix, prevCommand);
+        var ratio = matrix.Transform(new Point(1, 1));
+        Radius = new Size(Radius.Width * ratio.X, Radius.Height * ratio.Y);
+        var rotation = matrix.Transform(new Point(1, 0));
+        RotationAngle = (Math.Atan2(rotation.Y, rotation.X) * 180 / Math.PI)%360;
     }
 
     public static IEnumerable<ArcCommand> Parse(string command, List<double> paramList) {

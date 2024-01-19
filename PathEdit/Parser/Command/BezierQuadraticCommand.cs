@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Transactions;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 internal class BezierQuadraticCommand : BezierCommand {
-    public Point Control { get; set; }
+    public Point Control { get; private set; }
 
     public BezierQuadraticCommand(bool isRelative, Point control, Point endPoint) 
         : base(isRelative, endPoint, isCubic:false) {
@@ -13,11 +15,16 @@ internal class BezierQuadraticCommand : BezierCommand {
     }
 
     public override void DrawTo(IGraphics graphics, PathCommand? prev) {
-        var endPoint = ResolveRelativePoint(EndPoint, prev?.LastResolvedPoint ?? new Point(0, 0));
-        var control = ResolveRelativePoint(Control, prev?.LastResolvedPoint ?? new Point(0, 0));
+        var endPoint = ResolveRelativePoint(EndPoint, prev?.LastResolvedPoint);
+        var control = ResolveRelativePoint(Control, prev?.LastResolvedPoint);
         graphics.QuadTo(control, endPoint);
         LastResolvedPoint = endPoint;
         LastResolvedControl = control;
+    }
+
+    public override void Transform(Matrix matrix, PathCommand? prevCommand) {
+        base.Transform(matrix, prevCommand);
+        Control = TransformPoint(matrix, Control, prevCommand?.LastResolvedPoint);
     }
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
