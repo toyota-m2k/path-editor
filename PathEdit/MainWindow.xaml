@@ -11,10 +11,6 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Grid.Resources>
-            <w:ResourceDictionary Source="./Converters.xaml"/>
-        </Grid.Resources>
-        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -35,29 +31,68 @@
                 <PathIcon x:Name="pathIcon" Data="{x:Bind ViewModel.ComposedPath.Value, Mode=OneWay}"/>
             </Viewbox>
             <win2dcanvas:CanvasControl x:Name="PathCanvas" Width="400" Height="400" Draw="CanvasControl_Draw"/>
-            <StackPanel Orientation="Vertical">
-                <TextBlock Text="Scale"/>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Pivot X: "/>
-                    <TextBox Text="{x:Bind ViewModel.ScalePivotX.Value, Mode=TwoWay}" Width="50"/>
-                    <TextBlock Text="  Y: "/>
-                    <TextBox Text="{x:Bind ViewModel.ScalePivotY.Value, Mode=TwoWay}" Width="50"/>
+            <StackPanel Orientation="Vertical" Spacing="15">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Scale" FontWeight="ExtraBold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Pivot X: "/>
+                        <NumberBox Value="{x:Bind ViewModel.ScalePivotX.Value, Mode=TwoWay}"/>
+                        <TextBlock Text="  Y: "/>
+                        <NumberBox Value="{x:Bind ViewModel.ScalePivotY.Value, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <CheckBox Content="Keep Aspect" IsChecked="{x:Bind ViewModel.KeepAspect.Value, Mode=TwoWay}"/>
+                    <StackPanel Orientation="Horizontal" Visibility="{x:Bind ViewModel.SingleScaleVisibility.Value, Mode=OneWay}">
+                        <TextBlock Text="Scale: "/>
+                        <NumberBox Value="{x:Bind ViewModel.Scale.Value, Mode=TwoWay}"/>
+                        <TextBlock Text=" %"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Visibility="{x:Bind ViewModel.DoubleScaleVisibility.Value, Mode=OneWay}">
+                        <TextBlock Text="Scale X: "/>
+                        <NumberBox Value="{x:Bind ViewModel.ScaleX.Value, Mode=TwoWay}"/>
+                        <TextBlock Text=" % Y: "/>
+                        <NumberBox Value="{x:Bind ViewModel.ScaleY.Value, Mode=TwoWay}"/>
+                        <TextBlock Text=" %"/>
+                    </StackPanel>
+                    <Button Content="OK" Command="{x:Bind ViewModel.ScaleCommand}"/>
                 </StackPanel>
-                <CheckBox Content="Keep Aspect" IsChecked="{x:Bind ViewModel.KeepAspect.Value, Mode=TwoWay}"/>
-                <StackPanel Orientation="Horizontal" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource BoolVisibilityConverter}}">
-                    <TextBlock Text="Scale: "/>
-                    <TextBox Text="{x:Bind ViewModel.Scale.Value, Mode=TwoWay}" Width="50"/>
-                    <TextBlock Text=" %"/>
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Translate" FontWeight="ExtraBold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Translate X: "/>
+                        <NumberBox Value="{x:Bind ViewModel.TranslateX.Value, Mode=TwoWay}"/>
+                        <TextBlock Text=" Y: "/>
+                        <NumberBox Value="{x:Bind ViewModel.TranslateY.Value, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <Button Content="OK" Command="{x:Bind ViewModel.TranslateCommand}"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource NegBoolVisibilityConverter}}">
-                    <TextBlock Text="Scale X: "/>
-                    <TextBox Text="{x:Bind ViewModel.ScaleX.Value, Mode=TwoWay}" Width="50"/>
-                    <TextBlock Text=" % Y: "/>
-                    <TextBox Text="{x:Bind ViewModel.ScaleY.Value, Mode=TwoWay}" Width="50"/>
-                    <TextBlock Text=" %"/>
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Mirror" FontWeight="ExtraBold"/>
+                    <Button Content="Horizontal" Command="{x:Bind ViewModel.MirrorCommand}" CommandParameter="H"/>
+                    <Button Content="Vertical" Command="{x:Bind ViewModel.MirrorCommand}" CommandParameter="V"/>
                 </StackPanel>
-                <Button Content="Scale" Command="{x:Bind ViewModel.ScaleCommand}"/>
-
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Rotate" FontWeight="ExtraBold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Pivot X: "/>
+                        <NumberBox Value="{x:Bind ViewModel.RotatePivotX.Value, Mode=TwoWay}"/>
+                        <TextBlock Text="  Y: "/>
+                        <NumberBox Value="{x:Bind ViewModel.RotatePivotY.Value, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Angle: "/>
+                        <NumberBox Value="{x:Bind ViewModel.RotateAngle.Value, Mode=TwoWay}"/>
+                        <TextBlock Text=" °"/>
+                    </StackPanel>
+                    <Button Content="OK" Command="{x:Bind ViewModel.RotateCommand}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Round Values" FontWeight="ExtraBold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Digit: "/>
+                        <NumberBox Value="{x:Bind ViewModel.RoundDigit.Value, Mode=TwoWay}"/>
+                    </StackPanel>
+                    <Button Content="OK" Command="{x:Bind ViewModel.RoundCommand}"/>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </Grid>

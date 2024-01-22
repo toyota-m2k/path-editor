@@ -10,6 +10,18 @@ internal class LineVertCommand : PathCommand {
         : base(isRelative, new Point(0, y)) {
         }
 
+    public override PathCommand Clone() { 
+        return new LineVertCommand(IsRelative, EndPoint.Y);
+    }
+
+    public LineCommand ToLineCommand(double absX) {
+        if(IsRelative) {
+            return new LineCommand(true, new Point(0, EndPoint.Y));
+        } else {
+            return new LineCommand(false, new Point(absX, EndPoint.Y));
+        }
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
         Point endPoint;
         if (IsRelative) {

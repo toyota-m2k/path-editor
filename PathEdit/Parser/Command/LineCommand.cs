@@ -9,6 +9,10 @@ internal class LineCommand : PathCommand {
     public LineCommand(bool isRelative, Point endPoint) : base(isRelative, endPoint) {
     }
 
+    public override PathCommand Clone() {
+        return new LineCommand(IsRelative, EndPoint);
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prev) {
         var endPoint = ResolveRelativePoint(EndPoint, prev?.LastResolvedPoint ?? new Point(0, 0));
         graphics.LineTo(endPoint);

@@ -12,6 +12,23 @@ internal class SmoothBezierCubicCommand : SmoothBezierCommand {
         Control2 = control;
     }
 
+    public override PathCommand Clone() {
+        return new SmoothBezierCubicCommand(IsRelative, Control2, EndPoint);
+    }
+
+    public override void MakeAbsolute(PathCommand? prevCommand) {
+        if (!IsRelative) {
+            return;
+        }
+        Control2 = ResolveRelativePoint(Control2, prevCommand?.LastResolvedPoint);
+        base.MakeAbsolute(prevCommand);
+    }
+
+    public override void RoundCoordinateValue(int digit) {
+        base.RoundCoordinateValue(digit);
+        Control2 = RoundPoint(Control2, digit);
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
         var control1 = GetFirstControlPoint(prevCommand);
         var control2 = ResolveRelativePoint(Control2, prevCommand?.LastResolvedPoint);

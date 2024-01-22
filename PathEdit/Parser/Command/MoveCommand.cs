@@ -10,6 +10,10 @@ internal class MoveCommand : PathCommand {
         : base(isRelative, endPoint) {
     }
 
+    public override PathCommand Clone() {
+        return new MoveCommand(IsRelative, EndPoint);
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
         var endPoint = ResolveRelativePoint(EndPoint, prevCommand?.LastResolvedPoint);
         if(prevCommand is MoveCommand) {

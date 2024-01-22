@@ -8,8 +8,8 @@ namespace PathEdit.Parser.Command;
 internal class ArcCommand : PathCommand {
     public Size Radius { get; private set; }
     public double RotationAngle { get; private set; }
-    public bool IsLargeArc { get; }
-    public bool SweepDirection { get; }
+    public bool IsLargeArc { get; private set; }
+    public bool SweepDirection { get; private set; }
 
     public ArcCommand(
         bool isRelative, 
@@ -48,10 +48,23 @@ internal class ArcCommand : PathCommand {
 
     public override void Transform(Matrix matrix, PathCommand? prevCommand) {
         base.Transform(matrix, prevCommand);
-        var ratio = matrix.Transform(new Point(1, 1));
-        Radius = new Size(Radius.Width * ratio.X, Radius.Height * ratio.Y);
-        var rotation = matrix.Transform(new Point(1, 0));
-        RotationAngle = (Math.Atan2(rotation.Y, rotation.X) * 180 / Math.PI)%360;
+        var angle = (Math.Atan2(matrix.M12, matrix.M11) * 180 / Math.PI) % 360;
+        var scaleX = Math.Sqrt(matrix.M11 * matrix.M11 + matrix.M12 * matrix.M12);
+        var scaleY = Math.Sqrt(matrix.M21 * matrix.M21 + matrix.M22 * matrix.M22);
+        Radius = new Size(Radius.Width * scaleX, Radius.Height * scaleY);
+        if(Radius.Width != Radius.Height) {
+            RotationAngle = (RotationAngle + angle) % 360;
+        }
+    }
+
+    public override PathCommand Clone() {
+        return new ArcCommand(IsRelative, Radius, RotationAngle, IsLargeArc, SweepDirection, EndPoint);
+    }
+
+    public override void RoundCoordinateValue(int digit) {
+        base.RoundCoordinateValue(digit);
+        Radius = new Size(Math.Round(Radius.Width, digit), Math.Round(Radius.Height, digit));
+        RotationAngle = Math.Round(RotationAngle, digit);
     }
 
     public static IEnumerable<ArcCommand> Parse(string command, List<double> paramList) {

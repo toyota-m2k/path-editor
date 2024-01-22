@@ -14,6 +14,23 @@ internal class BezierQuadraticCommand : BezierCommand {
         Control = control;
     }
 
+    public override PathCommand Clone() {
+        return new BezierQuadraticCommand(IsRelative, Control, EndPoint);
+    }
+
+    public override void MakeAbsolute(PathCommand? prevCommand) {
+        if (!IsRelative) {
+            return;
+        }
+        Control = ResolveRelativePoint(Control, prevCommand?.LastResolvedPoint);
+        base.MakeAbsolute(prevCommand);
+    }
+
+    public override void RoundCoordinateValue(int digit) {
+        base.RoundCoordinateValue(digit);
+        Control = RoundPoint(Control, digit);
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prev) {
         var endPoint = ResolveRelativePoint(EndPoint, prev?.LastResolvedPoint);
         var control = ResolveRelativePoint(Control, prev?.LastResolvedPoint);

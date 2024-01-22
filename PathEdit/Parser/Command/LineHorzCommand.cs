@@ -11,6 +11,18 @@ internal class LineHorzCommand : PathCommand {
         : base(isRelative, new Point(x, 0)) {
     }
 
+    public override PathCommand Clone() {
+        return new LineHorzCommand(IsRelative, EndPoint.X);
+    }
+
+    public LineCommand ToLineCommand(double absY) {
+        if(IsRelative) {
+            return new LineCommand(true, new Point(EndPoint.X, 0));
+        } else {
+            return new LineCommand(false, new Point(EndPoint.X, absY));
+        }
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
         Point endPoint;
         if (IsRelative) {

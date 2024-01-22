@@ -9,6 +9,10 @@ internal class CloseCommand : PathCommand {
     public CloseCommand() : base(isRelative:false, new Point(0, 0)) {
     }
 
+    public override PathCommand Clone() {
+        return new CloseCommand();
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
         graphics.ClosePath();
     }

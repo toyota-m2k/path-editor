@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using PathEdit.Parser.Command;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Windows.Media;
 
 namespace PathEdit.Parser;
 internal class PathDrawable {
-    private readonly List<PathCommand> _commands;
+    private List<PathCommand> _commands;
     public PathDrawable() {
         _commands = new List<PathCommand>();
     }
@@ -42,6 +44,41 @@ internal class PathDrawable {
             prevCommand = command;
         }
         return sb.ToString();
+    }
+
+    /**
+     * H / V コマンドがあると回転時に困るので、それを L コマンドに変換する。
+     */
+    public PathDrawable PreProcessForRotation() {
+        var prevCommand = default(PathCommand?);
+        for(int i = 0; i < _commands.Count; i++) {
+            var command = _commands[i];
+            if (command is LineHorzCommand horz) {
+                command = horz.ToLineCommand(prevCommand?.LastResolvedPoint.Y ?? 0);
+                _commands[i] = command;
+            } else if(command is LineVertCommand vert) {
+                command = vert.ToLineCommand(prevCommand?.LastResolvedPoint.X ?? 0);
+                _commands[i] = command;
+            }
+            command.ResolveEndPoint(prevCommand);
+            prevCommand = command;
+        }
+        return this;
+    }
+
+    public PathDrawable Clone() {
+        var list = new List<PathCommand>();
+        foreach (var command in _commands) {
+            list.Add(command.Clone());
+        }
+        return new PathDrawable(list);
+    }
+
+    public PathDrawable RoundCoordinateValue(int digit) {
+        foreach (var command in _commands) {
+            command.RoundCoordinateValue(digit);
+        }
+        return this;
     }
 
     public static PathDrawable Parse(string pathData) {

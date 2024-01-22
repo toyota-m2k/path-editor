@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
@@ -6,7 +7,7 @@ using System.Windows.Media;
 namespace PathEdit.Parser;
 internal abstract class PathCommand {
     protected static readonly Point PointZero = new Point(0, 0);
-    public bool IsRelative { get; }
+    public bool IsRelative { get; set; }
     public Point EndPoint { get; set; }
     public Point LastResolvedPoint { get; protected set; } = new Point(0, 0);
 
@@ -21,6 +22,20 @@ internal abstract class PathCommand {
 
     protected Point TransformPoint(Matrix matrix, Point point, Point? basePoint) {
         return Absolute2Relative(matrix.Transform(ResolveRelativePoint(point, basePoint)), basePoint);
+    }
+
+    public abstract PathCommand Clone();
+
+    public virtual void MakeAbsolute(PathCommand? prevCommand) {
+        if (!IsRelative) {
+            return;
+        }
+        IsRelative = false;
+        EndPoint = ResolveRelativePoint(EndPoint, prevCommand?.LastResolvedPoint);
+    }
+
+    public void ResolveEndPoint(PathCommand? prevCommand) {
+        LastResolvedPoint = ResolveRelativePoint(EndPoint, prevCommand?.LastResolvedPoint);
     }
 
     protected Point Absolute2Relative(Point point, Point? basePoint) {
@@ -44,6 +59,13 @@ internal abstract class PathCommand {
         EndPoint = endPoint;
     }
 
+    protected static Point RoundPoint(Point point, int digit) {
+        return new Point(Math.Round(point.X, digit), Math.Round(point.Y, digit));
+    }
+
+    public virtual void RoundCoordinateValue(int digit) {
+        EndPoint = RoundPoint(EndPoint, digit);
+    }
 
     protected static Point getPoint(List<double> paramList, int index) {
         return new Point(paramList[index], paramList[index + 1]);

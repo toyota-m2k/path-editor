@@ -15,6 +15,25 @@ internal class BezierCubicCommand : BezierCommand {
         Control2 = control2;
     }
 
+    public override PathCommand Clone() {
+        return new BezierCubicCommand(IsRelative, Control1, Control2, EndPoint);
+    }
+
+    public override void MakeAbsolute(PathCommand? prevCommand) {
+        if (!IsRelative) {
+            return;
+        }
+        Control1 = ResolveRelativePoint(Control1, prevCommand?.LastResolvedPoint);
+        Control2 = ResolveRelativePoint(Control2, prevCommand?.LastResolvedPoint);
+        base.MakeAbsolute(prevCommand);
+    }
+
+    public override void RoundCoordinateValue(int digit) {
+        base.RoundCoordinateValue(digit);
+        Control1 = RoundPoint(Control1, digit);
+        Control2 = RoundPoint(Control2, digit);
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prev) {
         var endPoint = ResolveRelativePoint(EndPoint, prev?.LastResolvedPoint);
         var control1 = ResolveRelativePoint(Control1, prev?.LastResolvedPoint);

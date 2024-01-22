@@ -9,6 +9,10 @@ internal class SmoothBezierQuadraticCommand : SmoothBezierCommand{
         : base(isRelative, endPoint, isCubic:false) {
     }
 
+    public override PathCommand Clone() {
+        return new SmoothBezierQuadraticCommand(IsRelative, EndPoint);
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
         var control = GetFirstControlPoint(prevCommand);
         var endPoint = ResolveRelativePoint(EndPoint, prevCommand?.LastResolvedPoint);
