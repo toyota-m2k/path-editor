@@ -66,7 +66,7 @@
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Draw="CanvasControl_Draw"/>
-                <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="15">
+                <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="15" VerticalAlignment="Center">
                     <!-- Scaling -->
                     <Expander
                         IsExpanded="{x:Bind ViewModel.EditingScale.Value, Mode=TwoWay}"
