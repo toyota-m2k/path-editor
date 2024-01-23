@@ -54,6 +54,8 @@ namespace PathEdit {
             public ReactiveProperty<double> ScaleY { get; } = new(100);
             public ReactiveProperty<double> ScalePivotX { get; } = new (12);
             public ReactiveProperty<double> ScalePivotY { get; } = new(12);
+            public ReadOnlyReactiveProperty<double> ScalePivotOnScreenX { get; }
+            public ReadOnlyReactiveProperty<double> ScalePivotOnScreenY { get; }
             public ReadOnlyReactiveProperty<Visibility> SingleScaleVisibility { get; }
             public ReadOnlyReactiveProperty<Visibility> DoubleScaleVisibility { get; }
             public ReactiveCommand ScalePivotStepMinusX { get; } = new();
@@ -94,11 +96,14 @@ namespace PathEdit {
             #region Rotation
 
             public ReactiveProperty<bool> EditingRotation { get; } = new(false);
-
+            public ReactiveProperty<double> CanvasWidth { get; } = new(400);
+            public ReactiveProperty<double> CanvasHeight { get; } = new(400);
 
             public ReactiveProperty<double> RotatePivotX { get; } = new (12);
             public ReactiveProperty<double> RotatePivotY { get; } = new (12);
             public ReactiveProperty<double> RotateAngle { get; } = new (0);
+            public ReadOnlyReactiveProperty<double> RotatePivotOnScreenX { get; }
+            public ReadOnlyReactiveProperty<double> RotatePivotOnScreenY { get; }
 
             public ReactiveCommand RotateAngleStepMinus { get; } = new();
             public ReactiveCommand RotateAngleStepPlus { get; } = new();
@@ -174,7 +179,10 @@ namespace PathEdit {
                     }
                 });
 
-
+                ScalePivotOnScreenX = ScalePivotX.CombineLatest(CanvasWidth, (x, w) => x * w / PathWidth.Value).ToReadOnlyReactiveProperty();
+                ScalePivotOnScreenY = ScalePivotY.CombineLatest(CanvasHeight, (y, h) => y * h / PathHeight.Value).ToReadOnlyReactiveProperty();
+                RotatePivotOnScreenX = RotatePivotX.CombineLatest(CanvasWidth, (x, w) => x * w / PathWidth.Value).ToReadOnlyReactiveProperty();
+                RotatePivotOnScreenY = RotatePivotY.CombineLatest(CanvasHeight, (y, h) => y * h / PathHeight.Value).ToReadOnlyReactiveProperty();
 
                 SingleScaleVisibility = KeepAspect.Select(keepAspect => keepAspect ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
                 DoubleScaleVisibility = KeepAspect.Select(keepAspect => keepAspect ? Visibility.Collapsed : Visibility.Visible).ToReadOnlyReactiveProperty();
@@ -393,7 +401,8 @@ namespace PathEdit {
             //    geo.Transform(mx);
             //    drawingSession.FillGeometry(geo.Transform(mx), Color.FromArgb(0xff, 0, 0x80, 0xff));
             //}
-
+            ViewModel.CanvasWidth.Value = sender.Width;
+            ViewModel.CanvasHeight.Value = sender.Height;
             using (var graphics = new Win2DGraphics(args.DrawingSession, sender.Width, sender.Height, Windows.UI.Color.FromArgb(0xff, 0, 0xff, 0x80))) {
                 try {
                     graphics.SetPathSize(ViewModel.PathWidth.Value, ViewModel.PathHeight.Value);

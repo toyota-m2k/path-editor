@@ -58,14 +58,26 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <win2dcanvas:CanvasControl 
-                    x:Name="PathCanvas" 
-                    Grid.Column="0"
-                    Margin="10"
-                    Width="400" Height="400" 
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center"
-                    Draw="CanvasControl_Draw"/>
+                <Canvas Grid.Column="0" Width="410" Height="410" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <win2dcanvas:CanvasControl 
+                        x:Name="PathCanvas" 
+                        Canvas.Left="5"
+                        Canvas.Top="5"
+                        Width="400" Height="400" 
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Draw="CanvasControl_Draw"/>
+                    <w:Ellipse 
+                        Width="10" Height="10" Fill="Red"
+                        Canvas.Left="{x:Bind ViewModel.ScalePivotOnScreenX.Value, Mode=OneWay}" 
+                        Canvas.Top="{x:Bind ViewModel.ScalePivotOnScreenY.Value, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.EditingScale.Value, Mode=OneWay}"/>
+                    <w:Ellipse 
+                        Width="10" Height="10" Fill="Red"
+                        Canvas.Left="{x:Bind ViewModel.RotatePivotOnScreenX.Value, Mode=OneWay}" 
+                        Canvas.Top="{x:Bind ViewModel.RotatePivotOnScreenY.Value, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.EditingRotation.Value, Mode=OneWay}"/>
+                </Canvas>
                 <StackPanel Grid.Column="1" Orientation="Vertical" Spacing="15" VerticalAlignment="Center">
                     <!-- Scaling -->
                     <Expander
