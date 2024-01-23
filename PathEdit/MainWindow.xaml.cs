@@ -300,27 +300,13 @@ namespace PathEdit {
                     } else {
                         matrix.ScaleAt(-1, 1, ViewModel.PathWidth.Value / 2, ViewModel.PathHeight.Value / 2);
                     }
-                    ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).Transform(matrix).Compose();
+                    ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.EditingPath.Value).Transform(matrix).Compose();
                 }
                 catch (Exception e) {
                     LoggerEx.error(e);
                 }
             });
-            //ViewModel.RotateCommand.Subscribe(_ => {
-            //    try {
-            //        var matrix = new System.Windows.Media.Matrix();
-            //        double angle = ViewModel.RotateAngle.Value;
-            //        double cx = ViewModel.RotatePivotX.Value;
-            //        double cy = ViewModel.RotatePivotY.Value;
 
-            //        checkValues(angle, cx, cy);
-            //        matrix.RotateAt(angle, cx, cy);
-            //        ViewModel.SourcePath.Value = PathDrawable.Parse(ViewModel.SourcePath.Value).PreProcessForRotation().Transform(matrix).Compose();
-            //    }
-            //    catch (Exception e) {
-            //        LoggerEx.error(e);
-            //    }
-            //});
             ViewModel.RoundCommand.Subscribe(_ => {
                 try {
                     ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).RoundCoordinateValue(ViewModel.RoundDigit.Value).Compose();
