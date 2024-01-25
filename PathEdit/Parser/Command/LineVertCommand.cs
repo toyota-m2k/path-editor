@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows;
 
 namespace PathEdit.Parser.Command;
-internal class LineVertCommand : PathCommand {
+public class LineVertCommand : PathCommand {
     public LineVertCommand(bool isRelative, double y)
         : base(isRelative, new Point(0, y)) {
         }
@@ -34,9 +34,11 @@ internal class LineVertCommand : PathCommand {
         LoggerEx.info($"LineVertCommand.DrawTo: {endPoint}");
     }
 
+    public override string CommandName => IsRelative ? "v" : "V";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is LineVertCommand)) {
-            sb.Append(IsRelative ? "v" : "V");
+            sb.Append(CommandName);
         } 
         sb.Append(" ");
         sb.Append(EndPoint.Y);

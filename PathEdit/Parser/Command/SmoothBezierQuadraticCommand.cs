@@ -4,7 +4,7 @@ using System.Text;
 using System.Windows;
 
 namespace PathEdit.Parser.Command;
-internal class SmoothBezierQuadraticCommand : SmoothBezierCommand{
+public class SmoothBezierQuadraticCommand : SmoothBezierCommand{
     public SmoothBezierQuadraticCommand(bool isRelative, Point endPoint)
         : base(isRelative, endPoint, isCubic:false) {
     }
@@ -21,9 +21,11 @@ internal class SmoothBezierQuadraticCommand : SmoothBezierCommand{
         LastResolvedControl = control;
     }
 
+    public override string CommandName => IsRelative ? "t" : "T";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is SmoothBezierQuadraticCommand)) {
-            sb.Append(IsRelative ? "t" : "T");
+            sb.Append(CommandName);
         }
         sb.Append(" ");
         sb.Append(EndPoint.X);

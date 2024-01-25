@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
-internal class LineHorzCommand : PathCommand {
+public class LineHorzCommand : PathCommand {
     public LineHorzCommand(bool isRelative, double x)
         : base(isRelative, new Point(x, 0)) {
     }
@@ -35,9 +35,11 @@ internal class LineHorzCommand : PathCommand {
         LoggerEx.info($"LineHorzCommand.DrawTo: {endPoint}");
     }
 
+    public override string CommandName => IsRelative ? "h" : "H";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is LineHorzCommand)) {
-            sb.Append(IsRelative ? "h" : "H");
+            sb.Append(CommandName);
         } 
         sb.Append(" ");
         sb.Append(EndPoint.X);

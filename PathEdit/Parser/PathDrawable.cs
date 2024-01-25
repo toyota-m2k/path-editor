@@ -6,21 +6,22 @@ using System.Windows.Media;
 
 namespace PathEdit.Parser;
 internal class PathDrawable {
-    private List<PathCommand> _commands;
+    public List<PathCommand> Commands;
+
     public PathDrawable() {
-        _commands = new List<PathCommand>();
+        Commands = new List<PathCommand>();
     }
     public PathDrawable(List<PathCommand> commands) {
-        _commands = commands;
+        Commands = commands;
     }
 
     public void Add(IEnumerable<PathCommand> commands) {
-        _commands.AddRange(commands);
+        Commands.AddRange(commands);
     }
 
     public void DrawTo(IGraphics graphics) {
         var prevCommand = default(PathCommand?);
-        foreach (var command in _commands) {
+        foreach (var command in Commands) {
             command.DrawTo(graphics, prevCommand);
             prevCommand = command;
         }
@@ -29,7 +30,7 @@ internal class PathDrawable {
 
     public PathDrawable Transform(Matrix matrix) {
         var prevCommand = default(PathCommand?);
-        foreach (var command in _commands) {
+        foreach (var command in Commands) {
             command.Transform(matrix, prevCommand);
             prevCommand = command;
         }
@@ -39,7 +40,7 @@ internal class PathDrawable {
     public string Compose() {
         var sb = new StringBuilder();
         var prevCommand = default(PathCommand?);
-        foreach (var command in _commands) {
+        foreach (var command in Commands) {
             command.ComposeTo(sb, prevCommand);
             prevCommand = command;
         }
@@ -51,15 +52,24 @@ internal class PathDrawable {
      */
     public PathDrawable PreProcessForRotation() {
         var prevCommand = default(PathCommand?);
-        for(int i = 0; i < _commands.Count; i++) {
-            var command = _commands[i];
+        for(int i = 0; i < Commands.Count; i++) {
+            var command = Commands[i];
             if (command is LineHorzCommand horz) {
                 command = horz.ToLineCommand(prevCommand?.LastResolvedPoint.Y ?? 0);
-                _commands[i] = command;
+                Commands[i] = command;
             } else if(command is LineVertCommand vert) {
                 command = vert.ToLineCommand(prevCommand?.LastResolvedPoint.X ?? 0);
-                _commands[i] = command;
+                Commands[i] = command;
             }
+            command.ResolveEndPoint(prevCommand);
+            prevCommand = command;
+        }
+        return this;
+    }
+
+    public PathDrawable ResolveEndPoint() {
+        var prevCommand = default(PathCommand?);
+        foreach (var command in Commands) {
             command.ResolveEndPoint(prevCommand);
             prevCommand = command;
         }
@@ -68,14 +78,14 @@ internal class PathDrawable {
 
     public PathDrawable Clone() {
         var list = new List<PathCommand>();
-        foreach (var command in _commands) {
+        foreach (var command in Commands) {
             list.Add(command.Clone());
         }
         return new PathDrawable(list);
     }
 
     public PathDrawable RoundCoordinateValue(int digit) {
-        foreach (var command in _commands) {
+        foreach (var command in Commands) {
             command.RoundCoordinateValue(digit);
         }
         return this;

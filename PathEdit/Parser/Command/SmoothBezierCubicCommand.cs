@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
-internal class SmoothBezierCubicCommand : SmoothBezierCommand {
+public class SmoothBezierCubicCommand : SmoothBezierCommand {
     public Point Control2 { get; private set; }
     public SmoothBezierCubicCommand(bool isRelative, Point control, Point endPoint)
         : base(isRelative, endPoint, isCubic:true) {
@@ -43,9 +43,11 @@ internal class SmoothBezierCubicCommand : SmoothBezierCommand {
         Control2 = TransformPoint(matrix, Control2, prevCommand?.LastResolvedPoint);
     }
 
+    public override string CommandName => IsRelative ? "s" : "S";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is SmoothBezierCubicCommand)) {
-            sb.Append(IsRelative ? "s" : "S");
+            sb.Append(CommandName);
         }
         sb.Append(IsRelative?"s":"S");
         sb.Append(" ");

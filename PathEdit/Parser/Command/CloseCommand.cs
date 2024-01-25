@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
-internal class CloseCommand : PathCommand {
+public class CloseCommand : PathCommand {
     public CloseCommand() : base(isRelative:false, new Point(0, 0)) {
     }
 
@@ -17,8 +17,10 @@ internal class CloseCommand : PathCommand {
         graphics.ClosePath();
     }
 
+    public override string CommandName => "Z";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
-        sb.Append("Z");
+        sb.Append(CommandName);
     }
     public override void Transform(Matrix matrix, PathCommand? prevCommand) {
     }

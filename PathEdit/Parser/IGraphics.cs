@@ -2,7 +2,7 @@
 using System.Windows;
 
 namespace PathEdit.Parser;
-internal interface IGraphics : IDisposable {
+public interface IGraphics : IDisposable {
     void MoveTo(Point point);
     void LineTo(Point point);
     void CurveTo(Point control1, Point control2, Point point);

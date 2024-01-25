@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
-internal class BezierQuadraticCommand : BezierCommand {
+public class BezierQuadraticCommand : BezierCommand {
     public Point Control { get; private set; }
 
     public BezierQuadraticCommand(bool isRelative, Point control, Point endPoint) 
@@ -44,9 +44,11 @@ internal class BezierQuadraticCommand : BezierCommand {
         Control = TransformPoint(matrix, Control, prevCommand?.LastResolvedPoint);
     }
 
+    public override string CommandName => IsRelative ? "q" : "Q";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is BezierQuadraticCommand)) {
-            sb.Append(IsRelative ? "q" : "Q");
+            sb.Append(CommandName);
         }
         sb.Append(" ");
         sb.Append(Control.X);

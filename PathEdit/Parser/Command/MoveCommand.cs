@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
-internal class MoveCommand : PathCommand {
+public class MoveCommand : PathCommand {
     public MoveCommand(bool isRelative, Point endPoint)
         : base(isRelative, endPoint) {
     }
@@ -24,9 +24,11 @@ internal class MoveCommand : PathCommand {
         LastResolvedPoint = endPoint;
     }
 
+    public override string CommandName => IsRelative ? "m" : "M";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is MoveCommand)) {
-            sb.Append(IsRelative ? "m" : "M");
+            sb.Append(CommandName);
         }
         sb.Append(" ");
         sb.Append(EndPoint.X);

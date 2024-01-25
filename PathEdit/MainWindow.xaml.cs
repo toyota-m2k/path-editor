@@ -12,6 +12,7 @@ using Microsoft.Graphics.Canvas;
 using Windows.UI.ViewManagement;
 using System.Text.RegularExpressions;
 using Windows.Storage;
+using System.Collections.ObjectModel;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -25,11 +26,14 @@ namespace PathEdit {
             public ReactiveProperty<string> SourcePath { get; } = new ("M22,11L12,21L2,11H8V3H16V11H22M12,18L17,13H14V5H10V13H7L12,18Z");
 
             public ReactiveProperty<string> WorkingPath { get; } = new();
-            public ReactiveProperty<string> EditingPath { get; } = new ();
+            public ReactiveProperty<PathDrawable?> EditingPathDrawable { get; } = new(PathDrawable.Parse("M 3 3V 21H 21V 3"));
+            public ReadOnlyReactiveProperty<string> EditingPath { get; }
 
             public ReactiveCommand ComposeCommand { get; } = new ();
             public ReactiveProperty<int> PathWidth { get; } = new (24);
             public ReactiveProperty<int> PathHeight { get; } = new (24);
+            public ReactiveCommand<PathElementViewModel> EditCommand { get; } = new();
+            public ReactiveCommand<PathElementViewModel> DeleteCommand { get; } = new();
 
             #region Editing Mode
             public enum EditingMode {
@@ -130,13 +134,58 @@ namespace PathEdit {
 
             public ReactiveCommand CopyCommand { get; } = new();
 
+            public ReactiveProperty<bool> ShowAbsolute { get; } = new (false);
+            public ReactiveProperty<PathElementViewModel> SelectedElement { get; } = new();
+            public ObservableCollection<PathElementViewModel> PathElementList { get; } = new();
+
+            private void UpdatePathDrawable(string path) {
+                try {
+                    EditingPathDrawable.Value = PathDrawable.Parse(path);
+                }
+                catch (Exception) {
+                    EditingPathDrawable.Value = PathDrawable.Parse("M 0 0V 24H 24V 0");
+                }
+            }
+
             public MainWindowViewModel() {
-                SourcePath.Subscribe(path => {
-                    try {
-                        EditingPath.Value = PathDrawable.Parse(path).Compose();
-                    } catch (Exception) {
-                        EditingPath.Value = "M 3 3V 21H 21V 3";
+                EditingPath = EditingPathDrawable.Select(d=> {
+                    return d?.Compose() ?? "";
+                }).ToReadOnlyReactiveProperty<string>();
+                
+                EditingPathDrawable.Subscribe(d => {
+                    //PathElementList.Clear();
+                    //var prev = (PathCommand?)null;
+                    //foreach (var c in d.Commands) {
+                    //    PathElementList.Add(new PathElementViewModel(new PathElement(c, prev), ShowAbsolute));
+                    //    prev = c;
+                    //}
+
+                    if (d == null) {
+                        PathElementList.Clear();
+                        return;
                     }
+                    d.ResolveEndPoint();
+                    var prev = (PathCommand?)null;
+                    int count = 0;
+                    foreach (var c in d.Commands) {
+                        var element = new PathElement(c, prev);
+                        prev = c;
+                        if (count < PathElementList.Count) {
+                            PathElementList[count].Element.Value = element;
+                        }
+                        else {
+                            PathElementList.Add(new PathElementViewModel(element, ShowAbsolute, SelectedElement,  EditCommand, DeleteCommand));
+                        }
+                        count++;
+                    }
+                    for (int i = PathElementList.Count - 1; count <= i; i--) {
+                        PathElementList.RemoveAt(i);
+                    }
+                });
+
+                SourcePath.Subscribe(path => {
+                    UpdatePathDrawable(path);
+                    WorkingPath.Value = path;
                 });
 
                 Mode.Subscribe(m => {
@@ -255,6 +304,8 @@ namespace PathEdit {
             ViewModel.EditingPath.Subscribe(_ => {
                 PathCanvas.Invalidate();
             });
+
+
             //ViewModel.Scale.Subscribe(_ => {
             //    try {
             //        var matrix = new System.Windows.Media.Matrix();
@@ -308,7 +359,7 @@ namespace PathEdit {
                     } else {
                         matrix.ScaleAt(-1, 1, ViewModel.PathWidth.Value / 2, ViewModel.PathHeight.Value / 2);
                     }
-                    ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.EditingPath.Value).Transform(matrix).Compose();
+                    ViewModel.EditingPathDrawable.Value = PathDrawable.Parse(ViewModel.EditingPath.Value).Transform(matrix);
                 }
                 catch (Exception e) {
                     LoggerEx.error(e);
@@ -317,7 +368,7 @@ namespace PathEdit {
 
             ViewModel.RoundCommand.Subscribe(_ => {
                 try {
-                    ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).RoundCoordinateValue(ViewModel.RoundDigit.Value).Compose();
+                    ViewModel.EditingPathDrawable.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).RoundCoordinateValue(ViewModel.RoundDigit.Value);
                 }
                 catch (Exception e) {
                     LoggerEx.error(e);
@@ -335,7 +386,7 @@ namespace PathEdit {
                 double ty = ViewModel.TranslateY.Value;
                 checkValues(tx, ty);
                 matrix.Translate(tx, ty);
-                ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).Transform(matrix).Compose();
+                ViewModel.EditingPathDrawable.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).Transform(matrix);
             }
             catch (Exception e) {
                 LoggerEx.error(e);
@@ -358,7 +409,7 @@ namespace PathEdit {
                     checkValues(scaleX, scaleY);
                     matrix.ScaleAt(scaleX / 100, scaleY / 100, ViewModel.ScalePivotX.Value, ViewModel.ScalePivotY.Value);
                 }
-                ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).Transform(matrix).Compose();
+                ViewModel.EditingPathDrawable.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).Transform(matrix);
             }
             catch (Exception e) {
                 LoggerEx.error(e);
@@ -373,7 +424,7 @@ namespace PathEdit {
                 double cy = ViewModel.RotatePivotY.Value;
                 checkValues(angle, cx, cy);
                 matrix.RotateAt(angle, cx, cy);
-                ViewModel.EditingPath.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).PreProcessForRotation().Transform(matrix).Compose();
+                ViewModel.EditingPathDrawable.Value = PathDrawable.Parse(ViewModel.WorkingPath.Value).PreProcessForRotation().Transform(matrix);
             }
             catch (Exception e) {
                 LoggerEx.error(e);

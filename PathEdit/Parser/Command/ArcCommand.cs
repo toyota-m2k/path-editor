@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
-internal class ArcCommand : PathCommand {
+public class ArcCommand : PathCommand {
     public Size Radius { get; private set; }
     public double RotationAngle { get; private set; }
     public bool IsLargeArc { get; private set; }
@@ -34,9 +34,11 @@ internal class ArcCommand : PathCommand {
         LastResolvedPoint = endPoint;
     }
 
+    public override string CommandName => IsRelative ? "a" : "A";
+
     public override void ComposeTo(StringBuilder sb, PathCommand? prev) {
         if (!(prev is ArcCommand)) {
-            sb.Append(IsRelative ? "a" : "A");
+            sb.Append(CommandName);
         }
         sb.Append(" ");
         sb.Append($"{Radius.Width},{Radius.Height}");

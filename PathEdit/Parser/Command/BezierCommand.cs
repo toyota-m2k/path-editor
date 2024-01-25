@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 
 namespace PathEdit.Parser.Command;
-internal abstract class BezierCommand : PathCommand {
+public abstract class BezierCommand : PathCommand {
     public Point LastResolvedControl { get; protected set; } = new Point(0, 0);
     public bool IsCubic { get; }
 

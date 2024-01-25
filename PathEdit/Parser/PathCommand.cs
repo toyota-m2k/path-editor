@@ -5,11 +5,13 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser;
-internal abstract class PathCommand {
+public abstract class PathCommand {
     protected static readonly Point PointZero = new Point(0, 0);
     public bool IsRelative { get; set; }
     public Point EndPoint { get; set; }
     public Point LastResolvedPoint { get; protected set; } = new Point(0, 0);
+
+    public abstract string CommandName { get; }
 
     public abstract void DrawTo(IGraphics graphics, PathCommand? prevCommand);
     public abstract void ComposeTo(StringBuilder sb, PathCommand? prevCommand);
@@ -46,7 +48,7 @@ internal abstract class PathCommand {
         return new Point(point.X - bp.X, point.Y - bp.Y);
     }
 
-    protected Point ResolveRelativePoint(Point point, Point? basePoint) {
+    public Point ResolveRelativePoint(Point point, Point? basePoint) {
         if (!IsRelative) {
             return point;
         }

@@ -3,6 +3,7 @@
     x:Class="PathEdit.MainWindow"
     xmlns="using:Microsoft.UI.Xaml.Controls"
     xmlns:p="using:Microsoft.UI.Xaml.Controls.Primitives"
+    xmlns:r="using:ABI.Microsoft.UI.Xaml.Documents"
     xmlns:w="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:PathEdit"
@@ -57,12 +58,92 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel x:Name="List" Grid.Column="0" VerticalAlignment="Stretch" Width="400">
-                    <ListView 
-                    Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="AliceBlue" Margin="0,10,0,0"
+                <Grid.Resources>
+                    <w:DataTemplate x:Key="ListViewItemTemplate" x:DataType="local:PathElementViewModel">
+                        <Grid Width="300" MinHeight="40" VerticalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="CornflowerBlue">
+                            <Grid ColumnSpacing="6" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="1*" MinWidth="35"/>
+                                    <!--2-->
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="1*" MinWidth="35"/>
+                                    <!--4-->
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="20"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="{x:Bind CommandName.Value, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+
+                                <TextBlock  Grid.Row="0" Grid.Column="2" Text="{x:Bind StartPoint.Value, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <TextBlock  Grid.Row="0" Grid.Column="3" Text="-" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <TextBlock  Grid.Row="0" Grid.Column="4" Text="{x:Bind EndPoint.Value, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="4" Text=":Ctrl-1" HorizontalAlignment="Left" VerticalAlignment="Center" Visibility="{x:Bind Control1Visibility.Value, Mode=OneWay}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{x:Bind Control1.Value, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{x:Bind Control1Visibility.Value, Mode=OneWay}"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="4" Text=":Ctrl-2" HorizontalAlignment="Left" VerticalAlignment="Center" Visibility="{x:Bind Control2Visibility.Value, Mode=OneWay}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="2" Text="{x:Bind Control2.Value, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{x:Bind Control2Visibility.Value, Mode=OneWay}"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="{x:Bind Radius.Value, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{x:Bind ArcVisibility.Value, Mode=OneWay}"/>
+                                <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{x:Bind ArcVisibility.Value, Mode=OneWay}">
+                                    <TextBlock Text="Large: "/>
+                                    <TextBlock Text="{x:Bind IsLargeArc.Value, Mode=OneWay}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{x:Bind ArcVisibility.Value, Mode=OneWay}">
+                                    <TextBlock Text=" Sweep: "/>
+                                    <TextBlock Text="{x:Bind SweepDirection.Value, Mode=OneWay}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{x:Bind ArcVisibility.Value, Mode=OneWay}">
+                                    <TextBlock Text="Rotation: "/>
+                                    <TextBlock Text="{x:Bind RotationAngle.Value, Mode=OneWay}"/>
+                                    <TextBlock Text="°"/>
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Background="#8888" Padding="4,3" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind CanEdit.Value, Mode=OneWay}">
+                                <Button Command="{x:Bind EditCommand}" CommandParameter="{x:Bind}" Padding="2" Background="Blue">
+                                    <Viewbox Width="20" Height="20">
+                                        <PathIcon Foreground="White" Width="24" Height="24" Data="M 20.71 7.04C 21.1 6.65 21.1 6 20.71 5.63L 18.37 3.29C 18 2.9 17.35 2.9 16.96 3.29L 15.12 5.12 18.87 8.87M 3 17.25V 21H 6.75L 17.81 9.93 14.06 6.18 3 17.25Z"/>
+                                    </Viewbox>
+                                </Button>
+                                <Button Command="{x:Bind DeleteCommand}" CommandParameter="{x:Bind}" Padding="2" IsEnabled="{x:Bind CanDelete.Value, Mode=OneWay}" Background="Blue">
+                                    <Viewbox Width="20" Height="20">
+                                        <PathIcon Foreground="White" Width="24" Height="24" Data="M 9 3V 4H 4V 6H 5V 19A 2,2,0,0,0,7,21H 17A 2,2,0,0,0,19,19V 6H 20V 4H 15V 3H 9M 9 8H 11V 17H 9V 8M 13 8H 15V 17H 13V 8Z"/>
+                                    </Viewbox>
+                                </Button>
+                            </StackPanel>
+
+                        </Grid>
+                    </w:DataTemplate>
+                </Grid.Resources>
+                <ListView 
+                    Grid.Column="0" 
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Left"
+                    Background="AliceBlue" Margin="0,10,0,0"
                     SelectionMode="Single"
-                    />
-                </StackPanel>
+                    ItemTemplate="{w:StaticResource ListViewItemTemplate}"
+                    ItemsSource="{x:Bind ViewModel.PathElementList}"
+                    BorderThickness="3"
+                    BorderBrush="BlueViolet"
+                    SelectedItem="{x:Bind ViewModel.SelectedElement.Value, Mode=TwoWay}"
+                    >
+                    <!--
+                    <ListView.ItemContainerStyle>
+                        <w:Style TargetType="ListViewItem">
+                            <w:Setter Property="BorderBrush" Value="CornflowerBlue"/>
+                            <w:Setter Property="BorderThickness" Value="0,1,0,0"/>
+                        </w:Style>
+                    </ListView.ItemContainerStyle>
+                    -->
+                </ListView>
                 <Canvas Grid.Column="1" Width="410" Height="410" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <win2dcanvas:CanvasControl 
                         x:Name="PathCanvas" 
