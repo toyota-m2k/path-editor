@@ -16,7 +16,8 @@ public class EditorViewModel {
     /**
      * ソースパス文字列
      */
-    public ReactiveProperty<string> SourcePath { get; } = new("M22,11L12,21L2,11H8V3H16V11H22M12,18L17,13H14V5H10V13H7L12,18Z");
+    //public ReactiveProperty<string> SourcePath { get; } = new("M22,11L12,21L2,11H8V3H16V11H22M12,18L17,13H14V5H10V13H7L12,18Z");
+    public ReactiveProperty<string> SourcePath { get; } = new("M6,3A1,1 0 0,1 7,4V4.88C8.06,4.44 9.5,4 11,4C14,4 14,6 16,6C19,6 20,4 20,4V12C20,12 19,14 16,14C13,14 13,12 11,12C8,12 7,14 7,14V21H5V4A1,1 0 0,1 6,3Z");
     /**
      * 編集中のパス文字列（作業用）
      */
@@ -50,7 +51,7 @@ public class EditorViewModel {
 
     public ReactiveCommand<PathElementViewModel> EditCommand { get; } = new();
     public ReactiveCommand<PathElementViewModel> DeleteCommand { get; } = new();
-    public ReactiveCommand<bool> EndEditElementCommand { get; } = new();
+    public ReactiveCommand<string> EndEditElementCommand { get; } = new();
     public ReactiveCommand CopyCommand { get; } = new();
 
     #endregion
@@ -511,7 +512,12 @@ public class EditorViewModel {
         ElementEditing.Value = true;
     }
 
-    private void OnEndEditElement(bool done) {
+    private void OnEndEditElement(string done) {
+        if(done == "true") {
+            // apply changes
+        } else {
+            // cancel
+        }
         ElementEditing.Value = false;
     }
 

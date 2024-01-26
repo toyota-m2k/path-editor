@@ -451,7 +451,7 @@
                     </Expander>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="4" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.ElementEditing.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
-                    <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="True"/>
+                    <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="true"/>
                 </StackPanel>
             </Grid>
         </Grid>
