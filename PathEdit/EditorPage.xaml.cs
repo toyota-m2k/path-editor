@@ -26,9 +26,9 @@ public sealed partial class EditorPage : Page {
         ViewModel.SelectedElement.Subscribe(_ => {
             PathCanvas.Invalidate();
         });
-        #region Drawing
     }
 
+    #region Drawing
     private void CanvasControl_Draw(Microsoft.Graphics.Canvas.UI.Xaml.CanvasControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasDrawEventArgs args) {
         //var drawingSession = args.DrawingSession;
         //using (var pathBuilder = new CanvasPathBuilder(drawingSession)) {

@@ -50,12 +50,13 @@ public class EditorViewModel {
 
     public ReactiveCommand<PathElementViewModel> EditCommand { get; } = new();
     public ReactiveCommand<PathElementViewModel> DeleteCommand { get; } = new();
+    public ReactiveCommand<bool> EndEditElementCommand { get; } = new();
     public ReactiveCommand CopyCommand { get; } = new();
 
     #endregion
 
-    #region Command Type
-    public enum CommandType {
+    #region Transform Type
+    public enum TransformType {
         None,
         Scale,
         Translate,
@@ -63,7 +64,7 @@ public class EditorViewModel {
         Mirror,
         Round,
     }
-    public ReactiveProperty<CommandType> EditingCommandType { get; } = new(CommandType.None);
+    public ReactiveProperty<TransformType> EditingTransformType { get; } = new(TransformType.None);
 
     #endregion
 
@@ -161,7 +162,6 @@ public class EditorViewModel {
         }
     }
 
-    public ReactiveProperty<bool> ElementEditing { get; } = new();
     public ReadOnlyReactiveProperty<Visibility> EndPointMarkVisibility { get; }
     public ReadOnlyReactiveProperty<double> EndPointOnScreenX { get; }
     public ReadOnlyReactiveProperty<double> EndPointOnScreenY { get; }
@@ -178,6 +178,7 @@ public class EditorViewModel {
     public ReadOnlyReactiveProperty<double> Control2PointOnScreenX { get; }
     public ReadOnlyReactiveProperty<double> Control2PointOnScreenY { get; }
 
+    public ReactiveProperty<bool> ElementEditing { get; } = new();
 
     #endregion
 
@@ -222,44 +223,44 @@ public class EditorViewModel {
             WorkingPath.Value = path;
         });
 
-        EditingCommandType.Subscribe(m => {
-            EditingScale.Value = m == CommandType.Scale;
-            EditingTranslate.Value = m == CommandType.Translate;
-            EditingRotation.Value = m == CommandType.Rotate;
-            EditingMirror.Value = m == CommandType.Mirror;
-            EditingRound.Value = m == CommandType.Round;
+        EditingTransformType.Subscribe(m => {
+            EditingScale.Value = m == TransformType.Scale;
+            EditingTranslate.Value = m == TransformType.Translate;
+            EditingRotation.Value = m == TransformType.Rotate;
+            EditingMirror.Value = m == TransformType.Mirror;
+            EditingRound.Value = m == TransformType.Round;
 
             WorkingPath.Value = EditingPath.Value;
         });
 
         EditingScale.Subscribe(b => {
-            if (b && EditingCommandType.Value != CommandType.Scale) {
+            if (b && EditingTransformType.Value != TransformType.Scale) {
                 Scale.Value = 100;
                 ScaleX.Value = 100;
                 ScaleY.Value = 100;
-                EditingCommandType.Value = CommandType.Scale;
+                EditingTransformType.Value = TransformType.Scale;
             }
         });
         EditingTranslate.Subscribe(b => {
-            if (b && EditingCommandType.Value != CommandType.Translate) {
+            if (b && EditingTransformType.Value != TransformType.Translate) {
                 TranslateX.Value = 0;
                 TranslateY.Value = 0;
-                EditingCommandType.Value = CommandType.Translate;
+                EditingTransformType.Value = TransformType.Translate;
             }
         });
         EditingRotation.Subscribe(b => {
-            if (b && EditingCommandType.Value != CommandType.Rotate) {
-                EditingCommandType.Value = CommandType.Rotate;
+            if (b && EditingTransformType.Value != TransformType.Rotate) {
+                EditingTransformType.Value = TransformType.Rotate;
             }
         });
         EditingMirror.Subscribe(b => {
-            if (b && EditingCommandType.Value != CommandType.Mirror) {
-                EditingCommandType.Value = CommandType.Mirror;
+            if (b && EditingTransformType.Value != TransformType.Mirror) {
+                EditingTransformType.Value = TransformType.Mirror;
             }
         });
         EditingRound.Subscribe(b => {
-            if (b && EditingCommandType.Value != CommandType.Round) {
-                EditingCommandType.Value = CommandType.Round;
+            if (b && EditingTransformType.Value != TransformType.Round) {
+                EditingTransformType.Value = TransformType.Round;
             }
         });
 
@@ -326,6 +327,7 @@ public class EditorViewModel {
         CopyCommand.Subscribe(OnCopy);
         EditCommand.Subscribe(OnEditElement);
         DeleteCommand.Subscribe(OnDeleteElement);
+        EndEditElementCommand.Subscribe(OnEndEditElement);
 
         #endregion
 
@@ -360,7 +362,7 @@ public class EditorViewModel {
             EditingPathDrawable.Value = PathDrawable.Parse(path);
         }
         catch (Exception) {
-            EditingPathDrawable.Value = PathDrawable.Parse("M 0 0V 24H 24V 0");
+            EditingPathDrawable.Value = PathDrawable.Parse("M 0 0");
         }
     }
 
@@ -380,7 +382,7 @@ public class EditorViewModel {
      * 平行移動
      */
     private void OnTranslate(double _) {
-        if (EditingCommandType.Value != CommandType.Translate) {
+        if (EditingTransformType.Value != TransformType.Translate) {
             return;
         }
         try {
@@ -400,7 +402,7 @@ public class EditorViewModel {
      * 拡大縮小
      */
     private void OnScale(double _) {
-        if (EditingCommandType.Value != CommandType.Scale) {
+        if (EditingTransformType.Value != TransformType.Scale) {
             return;
         }
         try {
@@ -506,8 +508,12 @@ public class EditorViewModel {
 
     private void OnEditElement(PathElementViewModel model) {
         LoggerEx.debug($"OnDeleteElement: {model.CommandName.Value}");
+        ElementEditing.Value = true;
     }
 
+    private void OnEndEditElement(bool done) {
+        ElementEditing.Value = false;
+    }
 
     /**
      * 座標値のチェック
@@ -520,7 +526,7 @@ public class EditorViewModel {
         }
     }
 
-    static Regex pathPattern = new Regex("""\s*(?:d|android:pathData|Data)="(?<path>[^"]+)["]""");
+    static Regex pathPattern = new Regex("""\s*(?:d|pathData|Data)="(?<path>[^"]+)["]""");
     static Regex pathPattern2 = new Regex("""["](?<path>[^"]+)["]""");
 
     /**

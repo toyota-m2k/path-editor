@@ -215,7 +215,7 @@
                 </Canvas>
 
                 <!-- トランスフォーム操作エリア -->
-                <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="15" VerticalAlignment="Center">
+                <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="15" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.ElementEditing.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}">
                     <!-- Scaling -->
                     <Expander
                         IsExpanded="{x:Bind ViewModel.EditingScale.Value, Mode=TwoWay}"
@@ -449,6 +449,9 @@
                             </StackPanel>
                         </Expander.Content>
                     </Expander>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="4" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.ElementEditing.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
+                    <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="True"/>
                 </StackPanel>
             </Grid>
         </Grid>
