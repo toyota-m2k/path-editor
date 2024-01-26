@@ -9,13 +9,22 @@ using Windows.UI;
 namespace PathEdit.Graphics;
 internal class Win2DGraphics : IGraphics {
     private readonly CanvasDrawingSession DrawingSession;
-    private CanvasPathBuilder PathBuilder;
     private bool isOpened = false;
     private readonly double Width;
     private readonly double Height;
-    private readonly Color Color;
+    public Color Color { get; set; }
     private double PathWidth = 0;
     private double PathHeight = 0;
+
+    private CanvasPathBuilder? _pathBuilder = null;
+    private CanvasPathBuilder PathBuilder {
+        get {
+            if (_pathBuilder == null) {
+                _pathBuilder = new CanvasPathBuilder(DrawingSession);
+            }
+            return _pathBuilder;
+        }
+    }
 
     private bool isAutoSize => PathWidth == 0 || PathHeight == 0;
     public Win2DGraphics SetPathSize(double width, double height) {
@@ -29,7 +38,6 @@ internal class Win2DGraphics : IGraphics {
         Width = width;
         Height = height;
         Color = color;
-        PathBuilder = new CanvasPathBuilder(DrawingSession);
         
         //pb.BeginFigure(0, 0);
         //pb.EndFigure(CanvasFigureLoop.Open);
@@ -92,34 +100,68 @@ internal class Win2DGraphics : IGraphics {
         }
     }
 
-    public void Draw() {
+    public void Fill() {
         if(isOpened) {
             PathBuilder.EndFigure(CanvasFigureLoop.Open);
             isOpened = false;
         }
-        var geo = CanvasGeometry.CreatePath(PathBuilder);
-        geo.Stroke(0);
+        using (var geo = CanvasGeometry.CreatePath(PathBuilder)) {
+            double rw = 1f, rh = 1f;
+            if (isAutoSize) {
+                var rc = geo.ComputeBounds();
+                var w = rc.Width + rc.X;
+                var h = rc.Height + rc.Y;
+                if (w > 0) {
+                    rw = Width / w;
+                }
+                if (h > 0) {
+                    rh = Height / h;
+                }
+            }
+            else {
+                rw = Width / PathWidth;
+                rh = Height / PathHeight;
+            }
+            var mx = Matrix3x2.CreateScale((float)rw, (float)rh, Vector2.Zero);
+            DrawingSession.FillGeometry(geo.Transform(mx), Color);
+            //DrawingSession.DrawGeometry(geo.Transform(mx), Color, 10);
 
-        double rw = 1f, rh = 1f;
-        if (isAutoSize) {
-            var rc = geo.ComputeBounds();
-            var w = rc.Width + rc.X;
-            var h = rc.Height + rc.Y;
-            if (w > 0) {
-                rw = Width / w;
-            }
-            if (h > 0) {
-                rh = Height / h;
-            }
-        } else {
-            rw = Width / PathWidth;
-            rh = Height / PathHeight;
+            // CanvasGeometry.CreatePath を呼ぶと、PathBuilderがDisposeされるらしい。
+            // 再利用に備えて （念のためDisposeしてから）nullを代入しておく。
+            _pathBuilder?.Dispose();
+            _pathBuilder = null;
         }
-        var mx = Matrix3x2.CreateScale((float)rw, (float)rh, Vector2.Zero);
-        DrawingSession.FillGeometry(geo.Transform(mx), Color);
+    }
+
+    public void Stroke(double strokeWidth) {
+        if (isOpened) {
+            PathBuilder.EndFigure(CanvasFigureLoop.Open);
+            isOpened = false;
+        }
+        using (var geo = CanvasGeometry.CreatePath(PathBuilder)) {
+            double rw = 1f, rh = 1f;
+            if (isAutoSize) {
+                var rc = geo.ComputeBounds();
+                var w = rc.Width + rc.X;
+                var h = rc.Height + rc.Y;
+                if (w > 0) {
+                    rw = Width / w;
+                }
+                if (h > 0) {
+                    rh = Height / h;
+                }
+            }
+            else {
+                rw = Width / PathWidth;
+                rh = Height / PathHeight;
+            }
+            var mx = Matrix3x2.CreateScale((float)rw, (float)rh, Vector2.Zero);
+            DrawingSession.DrawGeometry(geo.Transform(mx), Color, (float)strokeWidth);
+        }
     }
 
     public void Dispose() {
-        PathBuilder.Dispose();
+        _pathBuilder?.Dispose();
+        _pathBuilder = null;
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 public class LineCommand : PathCommand {
@@ -17,7 +18,7 @@ public class LineCommand : PathCommand {
         var endPoint = ResolveRelativePoint(EndPoint, prev?.LastResolvedPoint ?? new Point(0, 0));
         graphics.LineTo(endPoint);
         LastResolvedPoint = endPoint;
-        LoggerEx.info($"LineCommand.DrawTo: {endPoint}");
+        //LoggerEx.info($"LineCommand.DrawTo: {endPoint}");
     }
 
     public override string CommandName => IsRelative ? "l" : "L";

@@ -1,11 +1,12 @@
 ﻿using PathEdit.Parser.Command;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
 using System.Windows.Media;
 
 namespace PathEdit.Parser;
-internal class PathDrawable {
+public class PathDrawable {
     public List<PathCommand> Commands;
 
     public PathDrawable() {
@@ -25,7 +26,7 @@ internal class PathDrawable {
             command.DrawTo(graphics, prevCommand);
             prevCommand = command;
         }
-        graphics.Draw();
+        graphics.Fill();
     }
 
     public PathDrawable Transform(Matrix matrix) {
@@ -55,10 +56,10 @@ internal class PathDrawable {
         for(int i = 0; i < Commands.Count; i++) {
             var command = Commands[i];
             if (command is LineHorzCommand horz) {
-                command = horz.ToLineCommand(prevCommand?.LastResolvedPoint.Y ?? 0);
+                command = horz.ToLineCommand(prevCommand);
                 Commands[i] = command;
             } else if(command is LineVertCommand vert) {
-                command = vert.ToLineCommand(prevCommand?.LastResolvedPoint.X ?? 0);
+                command = vert.ToLineCommand(prevCommand);
                 Commands[i] = command;
             }
             command.ResolveEndPoint(prevCommand);
@@ -94,4 +95,12 @@ internal class PathDrawable {
     public static PathDrawable Parse(string pathData) {
         return new PathDrawable(PathParser.Parse(pathData));
     }
+
+    #region Edit Commands
+    public PathDrawable RemoveCommand(PathCommand command) {
+        Commands.Remove(command);
+        return this;
+    }
+
+    #endregion
 }

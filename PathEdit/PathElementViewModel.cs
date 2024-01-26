@@ -10,6 +10,7 @@ using System.Windows;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
+using PathEdit.common;
 
 namespace PathEdit;
 public class PathElement {
@@ -23,9 +24,11 @@ public class PathElement {
     public string CommandName => Current.CommandName;
     public Point StartPoint => Prev?.LastResolvedPoint ?? new Point(0, 0);
     public Point EndPoint => Current.EndPoint;
-    public Point EndPointAbs => Current.ResolveRelativePoint(Current.EndPoint, Prev?.LastResolvedPoint);
+    public Point EndPointAbs => Current.ResolveRelativePoint(Current.CorrectedEndPoint(Prev), Prev?.LastResolvedPoint);
     public bool IsRelative => Current.IsRelative;
 
+    public bool HasStart => Prev != null;
+    public bool HasEnd => !(Current is CloseCommand);
     public bool HasControl1 => Current is BezierCommand || Current is SmoothBezierCommand;
     public bool HasControl2 => Current is BezierCubicCommand || Current is SmoothBezierCubicCommand;
     public bool IsArc => Current is ArcCommand;
@@ -77,6 +80,61 @@ public class PathElement {
     public double RotationAngle => Current is ArcCommand a ? a.RotationAngle : 0;
     public bool IsLargeArc => Current is ArcCommand a ? a.IsLargeArc : false;
     public bool SweepDirection => Current is ArcCommand a ? a.SweepDirection : false;
+
+    public void DrawTo(IGraphics graphics) {
+        switch (Current) {
+            case MoveCommand m:
+                if (Prev == null || !(Prev is MoveCommand)) {
+                    return;
+                }
+                break;
+            case CloseCommand c:
+                return;
+            default:
+                break;
+        }
+
+        graphics.MoveTo(StartPoint);
+        switch (Current) {
+            case LineCommand _:
+            case LineHorzCommand _:
+            case LineVertCommand _:
+                graphics.LineTo(EndPointAbs);
+                break;
+            case BezierQuadraticCommand _:
+            case SmoothBezierQuadraticCommand _:
+                graphics.QuadTo(Control1Abs, EndPointAbs);
+                break;
+            case BezierCubicCommand _:
+            case SmoothBezierCubicCommand _:
+                graphics.CurveTo(Control1Abs, Control2Abs, EndPointAbs);
+                break;
+            case ArcCommand a:
+                GraphicUtil.DrawArc(graphics, Radius, RotationAngle, IsLargeArc, SweepDirection, StartPoint, EndPointAbs);
+                break;
+        }
+        graphics.Stroke(10);
+        
+    }
+
+    public void Dump() {
+        var sb = new StringBuilder();
+        sb.Append($"{CommandName} S={StartPoint} E{EndPointAbs}");
+        
+        if (HasControl1) {
+            sb.Append($" C1={Control1Abs}");
+        }
+        if (HasControl2) {
+            sb.Append($" C2={Control2Abs}");
+        }
+        if (IsArc) {
+            sb.Append($" R={Radius}");
+            sb.Append($" θ={RotationAngle}");
+            sb.Append(IsLargeArc ? " L" : " S");
+            sb.Append(SweepDirection ? "L" : "R");
+        }
+        LoggerEx.debug(sb.ToString());
+    }
 }
 
 public class PathElementViewModel {

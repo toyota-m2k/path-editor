@@ -14,24 +14,24 @@ public class LineVertCommand : PathCommand {
         return new LineVertCommand(IsRelative, EndPoint.Y);
     }
 
-    public LineCommand ToLineCommand(double absX) {
-        if(IsRelative) {
-            return new LineCommand(true, new Point(0, EndPoint.Y));
-        } else {
-            return new LineCommand(false, new Point(absX, EndPoint.Y));
+    public override Point CorrectedEndPoint(PathCommand? prevCommand) {
+        if (IsRelative) {
+            return EndPoint;
+        }
+        else {
+            return new Point(prevCommand?.LastResolvedPoint.X ?? 0, EndPoint.Y);
         }
     }
 
+    public LineCommand ToLineCommand(PathCommand? prevCommand) {
+        return new LineCommand(IsRelative, CorrectedEndPoint(prevCommand));
+    }
+
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
-        Point endPoint;
-        if (IsRelative) {
-            endPoint = ResolveRelativePoint(EndPoint, prevCommand?.LastResolvedPoint);
-        } else {
-            endPoint = new Point(prevCommand?.LastResolvedPoint.X ?? 0, EndPoint.Y);
-        }
+        Point endPoint = ResolveRelativePoint(CorrectedEndPoint(prevCommand), prevCommand?.LastResolvedPoint);
         graphics.LineTo(endPoint);
         LastResolvedPoint = endPoint;
-        LoggerEx.info($"LineVertCommand.DrawTo: {endPoint}");
+        //LoggerEx.info($"LineVertCommand.DrawTo: {endPoint}");
     }
 
     public override string CommandName => IsRelative ? "v" : "V";
