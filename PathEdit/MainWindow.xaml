@@ -163,6 +163,47 @@
                         Canvas.Left="{x:Bind ViewModel.RotatePivotOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.RotatePivotOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.EditingRotation.Value, Mode=OneWay}"/>
+                    <Viewbox
+                        Width="20" Height="20"
+                        Canvas.Left="{x:Bind ViewModel.StartPointOnScreenX.Value, Mode=OneWay}" 
+                        Canvas.Top="{x:Bind ViewModel.StartPointOnScreenY.Value, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.StartPointMarkVisibility.Value, Mode=OneWay}">
+                        <Grid>
+                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                            <PathIcon Foreground="HotPink" Width="24" Height="24" Data="M 11 7A 2,2,0,0,0,9,9V 11A 2,2,0,0,0,11,13H 13V 15H 9V 17H 13A 2,2,0,0,0,15,15V 13A 2,2,0,0,0,13,11H 11V 9H 15V 7H 11M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2Z"/>
+                        </Grid>
+                    </Viewbox>
+                    <Viewbox
+                        Width="20" Height="20"
+                        Canvas.Left="{x:Bind ViewModel.EndPointOnScreenX.Value, Mode=OneWay}" 
+                        Canvas.Top="{x:Bind ViewModel.EndPointOnScreenY.Value, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.EndPointMarkVisibility.Value, Mode=OneWay}">
+                        <Grid>
+                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                            <PathIcon Foreground="YellowGreen" Width="24" Height="24" Data="M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 9 7V 17H 15V 15H 11V 13H 15V 11H 11V 9H 15V 7H 9Z"/>
+                        </Grid>
+                    </Viewbox>
+                    <Viewbox
+                        Width="20" Height="20"
+                        Canvas.Left="{x:Bind ViewModel.Control1PointOnScreenX.Value, Mode=OneWay}" 
+                        Canvas.Top="{x:Bind ViewModel.Control1PointOnScreenY.Value, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Control1PointMarkVisibility.Value, Mode=OneWay}">
+                        <Grid>
+                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                            <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M10,7H14V17H12V9H10V7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z"/>
+                        </Grid>
+                    </Viewbox>
+                    <Viewbox
+                        Width="20" Height="20"
+                        Canvas.Left="{x:Bind ViewModel.Control2PointOnScreenX.Value, Mode=OneWay}" 
+                        Canvas.Top="{x:Bind ViewModel.Control2PointOnScreenY.Value, Mode=OneWay}"
+                        Visibility="{x:Bind ViewModel.Control2PointMarkVisibility.Value, Mode=OneWay}">
+                        <Grid>
+                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                            <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M 9 7H 13A 2,2,0,0,1,15,9V 11A 2,2,0,0,1,13,13H 11V 15H 15V 17H 11L 9 17V 13A 2,2,0,0,1,11,11H 13V 9H 9V 7M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 12 4A 8,8,0,0,0,4,12 8,8,0,0,0,12,20 8,8,0,0,0,20,12 8,8,0,0,0,12,4Z"/>
+                        </Grid>
+                    </Viewbox>
+
                 </Canvas>
                 <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="15" VerticalAlignment="Center">
                     <!-- Scaling -->
@@ -243,10 +284,10 @@
                                     <PathIcon  Width="24" Height="24" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                                 </p:RepeatButton>
                             </Grid>
-                            
+
                         </Expander.Content>
                     </Expander>
-                    
+
                     <!-- Translation -->
                     <Expander
                         IsExpanded="{x:Bind ViewModel.EditingTranslate.Value, Mode=TwoWay}"
@@ -381,7 +422,7 @@
                             </Grid>
                         </Expander.Content>
                     </Expander>
-                    
+
                     <!-- Round Values -->
                     <Expander
                         IsExpanded="{x:Bind ViewModel.EditingRound.Value, Mode=TwoWay}"

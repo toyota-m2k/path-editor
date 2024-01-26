@@ -12,6 +12,7 @@ namespace PathEdit;
 
 public class MainWindowViewModel {
     #region Primitive Properties
+
     /**
      * ソースパス文字列
      */
@@ -157,27 +158,27 @@ public class MainWindowViewModel {
 
     public void UpdateEditingPathDrawable() {
         var drawable = EditingPathDrawable.Value;
-        if(drawable!=null) {
+        if (drawable != null) {
             EditingPathDrawable.Value = drawable;
         }
     }
 
     public ReactiveProperty<bool> ElementEditing { get; } = new();
     public ReadOnlyReactiveProperty<Visibility> EndPointMarkVisibility { get; }
-    public ReadOnlyReactiveProperty<double> EndPointX { get; }
-    public ReadOnlyReactiveProperty<double> EndPointY { get; }
+    public ReadOnlyReactiveProperty<double> EndPointOnScreenX { get; }
+    public ReadOnlyReactiveProperty<double> EndPointOnScreenY { get; }
 
     public ReadOnlyReactiveProperty<Visibility> StartPointMarkVisibility { get; }
-    public ReadOnlyReactiveProperty<double> StartPointX { get; }
-    public ReadOnlyReactiveProperty<double> StartPointY { get; }
+    public ReadOnlyReactiveProperty<double> StartPointOnScreenX { get; }
+    public ReadOnlyReactiveProperty<double> StartPointOnScreenY { get; }
 
     public ReadOnlyReactiveProperty<Visibility> Control1PointMarkVisibility { get; }
-    public ReadOnlyReactiveProperty<double> Control1PointX { get; }
-    public ReadOnlyReactiveProperty<double> Control1PointY { get; }
+    public ReadOnlyReactiveProperty<double> Control1PointOnScreenX { get; }
+    public ReadOnlyReactiveProperty<double> Control1PointOnScreenY { get; }
 
     public ReadOnlyReactiveProperty<Visibility> Control2PointMarkVisibility { get; }
-    public ReadOnlyReactiveProperty<double> Control2PointX { get; }
-    public ReadOnlyReactiveProperty<double> Control2PointY { get; }
+    public ReadOnlyReactiveProperty<double> Control2PointOnScreenX { get; }
+    public ReadOnlyReactiveProperty<double> Control2PointOnScreenY { get; }
 
 
     #endregion
@@ -268,10 +269,13 @@ public class MainWindowViewModel {
 
         #region Property Mapping
 
-        ScalePivotOnScreenX = ScalePivotX.CombineLatest(CanvasWidth, (x, w) => x * w / PathWidth.Value).ToReadOnlyReactiveProperty();
-        ScalePivotOnScreenY = ScalePivotY.CombineLatest(CanvasHeight, (y, h) => y * h / PathHeight.Value).ToReadOnlyReactiveProperty();
-        RotatePivotOnScreenX = RotatePivotX.CombineLatest(CanvasWidth, (x, w) => x * w / PathWidth.Value).ToReadOnlyReactiveProperty();
-        RotatePivotOnScreenY = RotatePivotY.CombineLatest(CanvasHeight, (y, h) => y * h / PathHeight.Value).ToReadOnlyReactiveProperty();
+        var ScreenX = (double x, double canvasWidth) => x * canvasWidth / PathWidth.Value;
+        var ScreenY = (double y, double canvasHeight) => y * canvasHeight / PathHeight.Value;
+
+        ScalePivotOnScreenX = ScalePivotX.CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        ScalePivotOnScreenY = ScalePivotY.CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
+        RotatePivotOnScreenX = RotatePivotX.CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        RotatePivotOnScreenY = RotatePivotY.CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         SingleScaleVisibility = KeepAspect.Select(keepAspect => keepAspect ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
         DoubleScaleVisibility = KeepAspect.Select(keepAspect => keepAspect ? Visibility.Collapsed : Visibility.Visible).ToReadOnlyReactiveProperty();
@@ -332,21 +336,21 @@ public class MainWindowViewModel {
 
         #region Edit Path Element
 
-        EndPointMarkVisibility = SelectedElement.Select( selected => (selected?.Element.Value.HasEnd == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        EndPointX = SelectedElement.Select(selected => selected?.Element.Value.EndPoint.X ?? 0).ToReadOnlyReactiveProperty();
-        EndPointY = SelectedElement.Select(selected => selected?.Element.Value.EndPoint.Y ?? 0).ToReadOnlyReactiveProperty();
+        EndPointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasEnd == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
+        EndPointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.EndPointAbs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        EndPointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.EndPointAbs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
-        StartPointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasStart==true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        StartPointX = SelectedElement.Select(selected => selected?.Element.Value.StartPoint.X ?? 0).ToReadOnlyReactiveProperty();
-        StartPointY = SelectedElement.Select(selected => selected?.Element.Value.StartPoint.Y ?? 0).ToReadOnlyReactiveProperty();
+        StartPointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasStart == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
+        StartPointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.StartPoint.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        StartPointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.StartPoint.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         Control1PointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasControl1 == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        Control1PointX = SelectedElement.Select(selected => selected?.Element.Value.Control1.X ?? 0).ToReadOnlyReactiveProperty();
-        Control1PointY = SelectedElement.Select(selected => selected?.Element.Value.Control1.Y ?? 0).ToReadOnlyReactiveProperty();
+        Control1PointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.Control1Abs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        Control1PointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.Control1Abs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         Control2PointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasControl2 == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        Control2PointX = SelectedElement.Select(selected => selected?.Element.Value.Control2.X ?? 0).ToReadOnlyReactiveProperty();
-        Control2PointY = SelectedElement.Select(selected => selected?.Element.Value.Control2.Y ?? 0).ToReadOnlyReactiveProperty();
+        Control2PointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.Control2Abs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        Control2PointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.Control2Abs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         #endregion
     }
@@ -381,7 +385,7 @@ public class MainWindowViewModel {
      * 平行移動
      */
     private void OnTranslate(double _) {
-        if (EditingCommandType.Value != MainWindowViewModel.CommandType.Translate) {
+        if (EditingCommandType.Value != CommandType.Translate) {
             return;
         }
         try {
@@ -401,7 +405,7 @@ public class MainWindowViewModel {
      * 拡大縮小
      */
     private void OnScale(double _) {
-        if (EditingCommandType.Value != MainWindowViewModel.CommandType.Scale) {
+        if (EditingCommandType.Value != CommandType.Scale) {
             return;
         }
         try {
@@ -495,11 +499,11 @@ public class MainWindowViewModel {
     private void OnDeleteElement(PathElementViewModel model) {
         LoggerEx.debug($"OnDeleteElement: {model.CommandName.Value}");
         var node = model.Element.Value;
-        if(node.Prev == null) {
+        if (node.Prev == null) {
             return;
         }
         var drawable = EditingPathDrawable.Value;
-        if(drawable == null) {
+        if (drawable == null) {
             return;
         }
         EditingPathDrawable.Value = drawable.RemoveCommand(node.Current)/*.Clone()*/;   // DistinctUntilChangedを指定していないので同じオブジェクトをセットするだけで更新がかかるはず。
