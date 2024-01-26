@@ -147,9 +147,9 @@ public class PathElementViewModel {
 
     public ReadOnlyReactiveProperty<string> EndPoint { get; }
 
-    public ReadOnlyReactiveProperty<Microsoft.UI.Xaml.Visibility> Control1Visibility { get; }
-    public ReadOnlyReactiveProperty<Microsoft.UI.Xaml.Visibility> Control2Visibility { get; }
-    public ReadOnlyReactiveProperty<Microsoft.UI.Xaml.Visibility> ArcVisibility { get; }
+    public ReadOnlyReactiveProperty<bool> HasControl1 { get; }
+    public ReadOnlyReactiveProperty<bool> HasControl2 { get; }
+    public ReadOnlyReactiveProperty<bool> IsArc { get; }
 
     public ReadOnlyReactiveProperty<string> Control1 { get; }
 
@@ -161,7 +161,7 @@ public class PathElementViewModel {
     public ReadOnlyReactiveProperty<bool> IsLargeArc { get; }
     public ReadOnlyReactiveProperty<bool> SweepDirection { get; }
 
-    public ReadOnlyReactiveProperty<Microsoft.UI.Xaml.Visibility> CanEdit { get; }
+    public ReadOnlyReactiveProperty<bool> CanEdit { get; }
     public ReadOnlyReactiveProperty<bool> CanDelete { get; }
 
     public ReactiveCommand<PathElementViewModel> EditCommand { get; }
@@ -188,9 +188,9 @@ public class PathElementViewModel {
         EndPoint = Element.CombineLatest(ShowAbsolute, (element, abs) => PointToString(abs ? element.EndPointAbs : element.EndPoint)).ToReadOnlyReactiveProperty<string>();
         CommandName = Element.Select(element => element.CommandName).ToReadOnlyReactiveProperty<string>();
 
-        Control1Visibility = Element.Select(element => element.HasControl1 ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        Control2Visibility = Element.Select(element => element.HasControl2 ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        ArcVisibility = Element.Select(element => element.IsArc ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed).ToReadOnlyReactiveProperty();
+        HasControl1 = Element.Select(element => element.HasControl1).ToReadOnlyReactiveProperty();
+        HasControl2 = Element.Select(element => element.HasControl2).ToReadOnlyReactiveProperty();
+        IsArc = Element.Select(element => element.IsArc).ToReadOnlyReactiveProperty();
 
         Control1 = Element.CombineLatest(ShowAbsolute, (element, abs) => PointToString(abs ? element.Control1Abs : element.Control1)).ToReadOnlyReactiveProperty<string>();
         Control2 = Element.CombineLatest(ShowAbsolute, (element, abs) => PointToString(abs ? element.Control2Abs : element.Control2)).ToReadOnlyReactiveProperty<string>();
@@ -200,7 +200,7 @@ public class PathElementViewModel {
         IsLargeArc = Element.Select(element => element.IsLargeArc).ToReadOnlyReactiveProperty();
         SweepDirection = Element.Select(element => element.SweepDirection).ToReadOnlyReactiveProperty();
 
-        CanEdit = Selected.Select(selected => (this == selected) ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed).ToReadOnlyReactiveProperty();
+        CanEdit = Selected.Select(selected => this == selected).ToReadOnlyReactiveProperty();
         CanDelete = Selected.Select(selected => selected?.Element.Value.Prev != null).ToReadOnlyReactiveProperty();
         EditCommand = editCommand;
         DeleteCommand = deleteCommand;

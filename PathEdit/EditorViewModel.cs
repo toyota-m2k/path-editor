@@ -10,7 +10,7 @@ using PathEdit.Parser.Command;
 
 namespace PathEdit;
 
-public class MainWindowViewModel {
+public class EditorViewModel {
     #region Primitive Properties
 
     /**
@@ -78,8 +78,6 @@ public class MainWindowViewModel {
     public ReactiveProperty<double> ScalePivotY { get; } = new(12);
     public ReadOnlyReactiveProperty<double> ScalePivotOnScreenX { get; }
     public ReadOnlyReactiveProperty<double> ScalePivotOnScreenY { get; }
-    public ReadOnlyReactiveProperty<Visibility> SingleScaleVisibility { get; }
-    public ReadOnlyReactiveProperty<Visibility> DoubleScaleVisibility { get; }
     public ReactiveCommand ScalePivotStepMinusX { get; } = new();
     public ReactiveCommand ScalePivotStepPlusX { get; } = new();
     public ReactiveCommand ScalePivotStepMinusY { get; } = new();
@@ -183,7 +181,7 @@ public class MainWindowViewModel {
 
     #endregion
 
-    public MainWindowViewModel() {
+    public EditorViewModel() {
         EditingPath = EditingPathDrawable.Select(d => {
             return d?.Compose() ?? "";
         }).ToReadOnlyReactiveProperty<string>();
@@ -276,9 +274,6 @@ public class MainWindowViewModel {
         ScalePivotOnScreenY = ScalePivotY.CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
         RotatePivotOnScreenX = RotatePivotX.CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
         RotatePivotOnScreenY = RotatePivotY.CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
-
-        SingleScaleVisibility = KeepAspect.Select(keepAspect => keepAspect ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        DoubleScaleVisibility = KeepAspect.Select(keepAspect => keepAspect ? Visibility.Collapsed : Visibility.Visible).ToReadOnlyReactiveProperty();
 
         TranslateStepPlusX.Subscribe(_ => TranslateX.Value += 1);
         TranslateStepMinusX.Subscribe(_ => TranslateX.Value -= 1);
