@@ -532,7 +532,7 @@ public class EditorViewModel {
         }
     }
 
-    static Regex pathPattern = new Regex("""\s*(?:d|pathData|Data)="(?<path>[^"]+)["]""");
+    static Regex pathPattern = new Regex("""(?:\s+d|:pathData|\s+Data)="(?<path>[^"]+)["]""");
     static Regex pathPattern2 = new Regex("""["](?<path>[^"]+)["]""");
 
     /**
