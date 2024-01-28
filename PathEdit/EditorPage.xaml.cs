@@ -84,6 +84,9 @@ public sealed partial class EditorPage : Page {
         LoggerEx.debug("OnPaste");
 
         e.Handled = true;
+        if(ViewModel.EditablePathElement.IsEditing.Value) {
+            return; // パス要素編集中はソース変更不可とする
+        }
         var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
         if (dataPackageView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text)) {
             try {
@@ -102,6 +105,10 @@ public sealed partial class EditorPage : Page {
 
     private void OnDragOver(object sender, Microsoft.UI.Xaml.DragEventArgs e) {
         LoggerEx.debug("OnDragOver");
+        if (ViewModel.EditablePathElement.IsEditing.Value) {
+            e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.None;
+            return; // パス要素編集中はソース変更不可とする
+        }
         e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
         e.DragUIOverride.Caption = "Drop to load SVG Path";
         e.DragUIOverride.IsCaptionVisible = true;
@@ -111,11 +118,20 @@ public sealed partial class EditorPage : Page {
 
     private void OnDragEnter(object sender, DragEventArgs e) {
         LoggerEx.debug("OnDragEnter");
+        if (ViewModel.EditablePathElement.IsEditing.Value) {
+            e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.None;
+            return; // パス要素編集中はソース変更不可とする
+        }
+
         e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Copy;
     }
 
     private void OnDrop(object sender, DragEventArgs e) {
         LoggerEx.debug("OnDrop");
+        if (ViewModel.EditablePathElement.IsEditing.Value) {
+            return; // パス要素編集中はソース変更不可とする
+        }
+
         if (e.DataView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text)) {
             try {
                 var text = e.DataView.GetTextAsync().AsTask().Result;

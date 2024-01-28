@@ -15,6 +15,7 @@
     <Page.Resources>
         <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter"/>
         <local:NegBoolVisibilityConverter x:Key="NegBoolVisibilityConverter"/>
+        <local:NegBoolConverter x:Key="NegBoolConverter"/>
     </Page.Resources>
     <Grid
         x:Name="RootGrid"
@@ -47,7 +48,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Source Path" FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.SourcePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Paste="OnPaste" HorizontalAlignment="Stretch"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.SourcePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Paste="OnPaste" HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Mode=OneWay, Converter={w:StaticResource NegBoolConverter}}"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Result" FontWeight="Bold" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.EditingPath.Value, Mode=OneWay}" HorizontalAlignment="Stretch" IsReadOnly="True"/>
@@ -146,6 +147,7 @@
                     BorderThickness="3"
                     BorderBrush="BlueViolet"
                     SelectedItem="{x:Bind ViewModel.SelectedElement.Value, Mode=TwoWay}"
+                    IsEnabled="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Mode=OneWay, Converter={w:StaticResource NegBoolConverter}}"
                     >
                     <!--
                     <ListView.ItemContainerStyle>
