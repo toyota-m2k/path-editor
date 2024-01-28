@@ -6,10 +6,10 @@ using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 public class ArcCommand : PathCommand {
-    public Size Radius { get; private set; }
-    public double RotationAngle { get; private set; }
-    public bool IsLargeArc { get; private set; }
-    public bool SweepDirection { get; private set; }
+    public Size Radius { get; set; }
+    public double RotationAngle { get; set; }
+    public bool IsLargeArc { get; set; }
+    public bool SweepDirection { get; set; }
 
     public ArcCommand(
         bool isRelative, 
@@ -35,6 +35,7 @@ public class ArcCommand : PathCommand {
     }
 
     public override string CommandName => IsRelative ? "a" : "A";
+    public override string DispalyName => "Arc";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prev) {
         if (!(prev is ArcCommand)) {

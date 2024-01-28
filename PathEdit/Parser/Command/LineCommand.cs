@@ -22,6 +22,7 @@ public class LineCommand : PathCommand {
     }
 
     public override string CommandName => IsRelative ? "l" : "L";
+    public override string DispalyName => "Line";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is LineCommand)) {

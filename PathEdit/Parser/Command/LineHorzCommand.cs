@@ -37,6 +37,7 @@ public class LineHorzCommand : PathCommand {
     }
 
     public override string CommandName => IsRelative ? "h" : "H";
+    public override string DispalyName => "Line Horizontal";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is LineHorzCommand)) {

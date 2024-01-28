@@ -22,6 +22,7 @@ public class PathElement {
     }
 
     public string CommandName => Current.CommandName;
+    public string DispalyName => Current.DispalyName;
     public Point StartPoint => Prev?.LastResolvedPoint ?? new Point(0, 0);
     public Point EndPoint => Current.EndPoint;
     public Point EndPointAbs => Current.ResolveRelativePoint(Current.CorrectedEndPoint(Prev), Prev?.LastResolvedPoint);
@@ -32,6 +33,7 @@ public class PathElement {
     public bool HasControl1 => Current is BezierCommand || Current is SmoothBezierCommand;
     public bool HasControl2 => Current is BezierCubicCommand || Current is SmoothBezierCubicCommand;
     public bool IsArc => Current is ArcCommand;
+    public bool IsClose => Current is CloseCommand;
 
     public Point Control1 {
         get {
@@ -165,7 +167,7 @@ public class PathElementViewModel {
     public ReadOnlyReactiveProperty<bool> CanDelete { get; }
 
     public ReactiveCommand<PathElementViewModel> EditCommand { get; }
-
+    public ReactiveCommand<PathElementViewModel> InsertCommand { get; }
     public ReactiveCommand<PathElementViewModel> DeleteCommand { get; }
 
     private static double R(double v) => Math.Round(v, 4);
@@ -179,7 +181,9 @@ public class PathElementViewModel {
 
     public PathElementViewModel(PathElement element, IReadOnlyReactiveProperty<bool> showAbsolute, 
         IReadOnlyReactiveProperty<PathElementViewModel> selected,
-        ReactiveCommand<PathElementViewModel> editCommand, ReactiveCommand<PathElementViewModel> deleteCommand) {
+        ReactiveCommand<PathElementViewModel> editCommand,
+        ReactiveCommand<PathElementViewModel> insertCommand,
+        ReactiveCommand<PathElementViewModel> deleteCommand) {
         Element = new ReactiveProperty<PathElement>(element);
         ShowAbsolute = showAbsolute;
         Selected = selected;
@@ -203,6 +207,7 @@ public class PathElementViewModel {
         CanEdit = Selected.Select(selected => this == selected).ToReadOnlyReactiveProperty();
         CanDelete = Selected.Select(selected => selected?.Element.Value.Prev != null).ToReadOnlyReactiveProperty();
         EditCommand = editCommand;
+        InsertCommand = insertCommand;
         DeleteCommand = deleteCommand;
     }
 }

@@ -6,8 +6,8 @@ using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 public class BezierCubicCommand : BezierCommand {
-    public Point Control1 { get; private set; }
-    public Point Control2 { get; private set; }
+    public Point Control1 { get; set; }
+    public Point Control2 { get; set; }
 
     public BezierCubicCommand(bool isRelative, Point control1, Point control2, Point endPoint)
         : base(isRelative, endPoint, true) {
@@ -50,6 +50,7 @@ public class BezierCubicCommand : BezierCommand {
     }
 
     public override string CommandName => IsRelative ? "c" : "C";
+    public override string DispalyName => "Bezier Cubic";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is BezierQuadraticCommand)) {

@@ -25,6 +25,7 @@ public class MoveCommand : PathCommand {
     }
 
     public override string CommandName => IsRelative ? "m" : "M";
+    public override string DispalyName => "Move";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is MoveCommand)) {

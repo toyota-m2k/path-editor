@@ -22,6 +22,7 @@ public abstract class PathCommand {
     }
 
     public abstract string CommandName { get; }
+    public abstract string DispalyName { get; }
 
     public abstract void DrawTo(IGraphics graphics, PathCommand? prevCommand);
     public abstract void ComposeTo(StringBuilder sb, PathCommand? prevCommand);

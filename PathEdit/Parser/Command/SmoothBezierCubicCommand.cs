@@ -6,7 +6,7 @@ using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 public class SmoothBezierCubicCommand : SmoothBezierCommand {
-    public Point Control2 { get; private set; }
+    public Point Control2 { get; set; }
     public SmoothBezierCubicCommand(bool isRelative, Point control, Point endPoint)
         : base(isRelative, endPoint, isCubic:true) {
         Control2 = control;
@@ -44,6 +44,7 @@ public class SmoothBezierCubicCommand : SmoothBezierCommand {
     }
 
     public override string CommandName => IsRelative ? "s" : "S";
+    public override string DispalyName => "Smooth Bezier Cubic";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is SmoothBezierCubicCommand)) {

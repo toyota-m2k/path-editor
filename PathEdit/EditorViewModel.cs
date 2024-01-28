@@ -50,6 +50,7 @@ public class EditorViewModel {
     #region Commands
 
     public ReactiveCommand<PathElementViewModel> EditCommand { get; } = new();
+    public ReactiveCommand<PathElementViewModel> InsertCommand { get; } = new();
     public ReactiveCommand<PathElementViewModel> DeleteCommand { get; } = new();
     public ReactiveCommand<string> EndEditElementCommand { get; } = new();
     public ReactiveCommand CopyCommand { get; } = new();
@@ -179,7 +180,8 @@ public class EditorViewModel {
     public ReadOnlyReactiveProperty<double> Control2PointOnScreenX { get; }
     public ReadOnlyReactiveProperty<double> Control2PointOnScreenY { get; }
 
-    public ReactiveProperty<bool> ElementEditing { get; } = new();
+
+    public EditablePathElement EditablePathElement { get; } = new();
 
     #endregion
 
@@ -204,7 +206,7 @@ public class EditorViewModel {
                     PathElementList[count].Element.Value = element;
                 }
                 else {
-                    PathElementList.Add(new PathElementViewModel(element, ShowAbsolute, SelectedElement, EditCommand, DeleteCommand));
+                    PathElementList.Add(new PathElementViewModel(element, ShowAbsolute, SelectedElement, EditCommand, InsertCommand, DeleteCommand));
                 }
                 count++;
             }
@@ -327,12 +329,13 @@ public class EditorViewModel {
 
         CopyCommand.Subscribe(OnCopy);
         EditCommand.Subscribe(OnEditElement);
+        InsertCommand.Subscribe(OnInsertElement);
         DeleteCommand.Subscribe(OnDeleteElement);
         EndEditElementCommand.Subscribe(OnEndEditElement);
 
         #endregion
 
-        #region Edit Path Element
+        #region Path Element Params
 
         EndPointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasEnd == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
         EndPointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.EndPointAbs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
@@ -349,6 +352,21 @@ public class EditorViewModel {
         Control2PointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasControl2 == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
         Control2PointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.Control2Abs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
         Control2PointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.Control2Abs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
+
+        #endregion
+
+        #region Editing Path Element
+
+        EditablePathElement.GeneratedPathCommand.Subscribe(c => {
+            var target = EditablePathElement.TargetElementRef;
+            if (target != null && EditablePathElement.IsModified) {
+                var drawable = EditingPathDrawable.Value;
+                if (drawable != null) {
+                    var newDrawable = drawable.ReplaceCommand(target.Current, c);
+                    EditingPathDrawable.Value = newDrawable;
+                }
+            }
+        });
 
         #endregion
     }
@@ -509,7 +527,7 @@ public class EditorViewModel {
 
     private void OnEditElement(PathElementViewModel model) {
         LoggerEx.debug($"OnDeleteElement: {model.CommandName.Value}");
-        ElementEditing.Value = true;
+        EditablePathElement.BeginEdit(model.Element.Value);
     }
 
     private void OnEndEditElement(string done) {
@@ -518,9 +536,12 @@ public class EditorViewModel {
         } else {
             // cancel
         }
-        ElementEditing.Value = false;
+        EditablePathElement.EndEdit();
     }
 
+    private void OnInsertElement(PathElementViewModel model) {
+        LoggerEx.debug($"OnInsertElement: {model.CommandName.Value}");
+    }
     /**
      * 座標値のチェック
      */
@@ -565,3 +586,4 @@ public class EditorViewModel {
         return m2.Groups["path"].Value;
     }
 }
+

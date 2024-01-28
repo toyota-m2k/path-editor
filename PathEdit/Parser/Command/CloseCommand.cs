@@ -18,6 +18,7 @@ public class CloseCommand : PathCommand {
     }
 
     public override string CommandName => "Z";
+    public override string DispalyName => "Close";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         sb.Append(CommandName);

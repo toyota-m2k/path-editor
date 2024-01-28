@@ -35,6 +35,7 @@ public class LineVertCommand : PathCommand {
     }
 
     public override string CommandName => IsRelative ? "v" : "V";
+    public override string DispalyName => "Line Vertical";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is LineVertCommand)) {

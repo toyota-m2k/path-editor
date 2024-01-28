@@ -102,5 +102,36 @@ public class PathDrawable {
         return this;
     }
 
+    //public PathDrawable InsertCommand(int index, PathCommand command) {
+    //    Commands.Insert(index, command);
+    //    return this;
+    //}
+    public PathDrawable InsertCommand(PathCommand prev, PathCommand command) {
+        var index = Commands.IndexOf(prev)+1;
+        if(index>=Commands.Count) {
+            Commands.Add(command);
+        } else {
+            Commands.Insert(index, command);
+        }
+        return this;
+    }
+
+    //public PathDrawable ReplaceCommand(int index, PathCommand command) {
+    //    Commands[index] = command;
+    //    return this;
+    //}
+
+    public PathDrawable ReplaceCommand(PathCommand at, PathCommand command) {
+        try
+        {
+            var index = Commands.IndexOf(at);
+            Commands[index] = command;
+        } catch(Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+        return this;
+    }
+
     #endregion
 }
