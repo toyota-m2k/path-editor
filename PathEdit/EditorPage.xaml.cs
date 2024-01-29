@@ -1,10 +1,12 @@
 using Microsoft.Graphics.Canvas;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using PathEdit.common;
 using PathEdit.Graphics;
 using PathEdit.Parser;
 using System;
+using System.Linq;
 using Windows.Storage;
 using Windows.UI;
 
@@ -164,4 +166,24 @@ public sealed partial class EditorPage : Page {
     }
 
     #endregion
+
+    private void OnPathElementListItemClicked(object sender, ItemClickEventArgs e) {
+        if(e.ClickedItem == ViewModel.SelectedElement.Value) {
+            ViewModel.SelectedElement.Value = null;
+        } else {
+            ViewModel.SelectedElement.Value = (PathElementViewModel)e.ClickedItem;
+        }
+    }
+
+    private void OnPathElementListSelectionChanged(object sender, SelectionChangedEventArgs e) {
+        var sel = (PathElementViewModel?)e.AddedItems.FirstOrDefault();
+        if (sel!=ViewModel.SelectedElement.Value) {
+            var prev = (PathElementViewModel?)e.RemovedItems.FirstOrDefault();
+            if (prev== ViewModel.SelectedElement.Value) {
+                ViewModel.SelectedElement.Value = sel;
+            } else {
+                ViewModel.SelectedElement.Value = null;
+            }
+        }
+    }
 }

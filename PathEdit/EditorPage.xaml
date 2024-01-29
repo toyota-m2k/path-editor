@@ -142,12 +142,14 @@
                     HorizontalAlignment="Left"
                     Background="AliceBlue" Margin="0,10,0,0"
                     SelectionMode="Single"
+                    IsItemClickEnabled="True"
                     ItemTemplate="{w:StaticResource ListViewItemTemplate}"
                     ItemsSource="{x:Bind ViewModel.PathElementList}"
                     BorderThickness="3"
                     BorderBrush="BlueViolet"
-                    SelectedItem="{x:Bind ViewModel.SelectedElement.Value, Mode=TwoWay}"
                     IsEnabled="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Mode=OneWay, Converter={w:StaticResource NegBoolConverter}}"
+                    ItemClick="OnPathElementListItemClicked"
+                    SelectionChanged="OnPathElementListSelectionChanged"
                     >
                     <!--
                     <ListView.ItemContainerStyle>
