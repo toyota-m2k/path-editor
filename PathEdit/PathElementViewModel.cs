@@ -141,7 +141,7 @@ public class PathElement {
 
 public class PathElementViewModel {
     public ReactiveProperty<PathElement> Element { get; }
-    public IReadOnlyReactiveProperty<PathElementViewModel> Selected { get; }
+    public IReadOnlyReactiveProperty<PathElementViewModel?> Selected { get; }
     public IReadOnlyReactiveProperty<bool> ShowAbsolute { get; }
 
     public ReadOnlyReactiveProperty<string> CommandName { get; }
@@ -180,7 +180,7 @@ public class PathElementViewModel {
     }
 
     public PathElementViewModel(PathElement element, IReadOnlyReactiveProperty<bool> showAbsolute, 
-        IReadOnlyReactiveProperty<PathElementViewModel> selected,
+        IReadOnlyReactiveProperty<PathElementViewModel?> selected,
         ReactiveCommand<PathElementViewModel> editCommand,
         ReactiveCommand<PathElementViewModel> insertCommand,
         ReactiveCommand<PathElementViewModel> deleteCommand) {

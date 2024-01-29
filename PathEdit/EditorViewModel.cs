@@ -7,6 +7,8 @@ using PathEdit.common;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using PathEdit.Parser.Command;
+using System.Security.Cryptography.X509Certificates;
+using Windows.Globalization.NumberFormatting;
 
 namespace PathEdit;
 
@@ -120,9 +122,9 @@ public class EditorViewModel {
 
     public ReactiveProperty<bool> EditingRotation { get; } = new(false);
 
-    public ReactiveProperty<double> RotatePivotX { get; } = new(12, ReactivePropertyMode.DistinctUntilChanged);
-    public ReactiveProperty<double> RotatePivotY { get; } = new(12, ReactivePropertyMode.DistinctUntilChanged);
-    public ReactiveProperty<double> RotateAngle { get; } = new(0, ReactivePropertyMode.DistinctUntilChanged);
+    public ReactiveProperty<double> RotatePivotX { get; } = new(12);
+    public ReactiveProperty<double> RotatePivotY { get; } = new(12);
+    public ReactiveProperty<double> RotateAngle { get; } = new(0);
     public ReadOnlyReactiveProperty<double> RotatePivotOnScreenX { get; }
     public ReadOnlyReactiveProperty<double> RotatePivotOnScreenY { get; }
 
@@ -149,7 +151,7 @@ public class EditorViewModel {
 
     #region Path Element List
 
-    public ReactiveProperty<PathElementViewModel> SelectedElement { get; } = new();
+    public ReactiveProperty<PathElementViewModel?> SelectedElement { get; } = new();
     public ObservableCollection<PathElementViewModel> PathElementList { get; } = new();
     public ReactiveProperty<bool> ShowAbsolute { get; } = new(true);
 
@@ -183,6 +185,15 @@ public class EditorViewModel {
 
     public EditablePathElement EditablePathElement { get; } = new();
 
+    public DecimalFormatter CoordinateFormatter { get; } = new() {
+        FractionDigits = 2,
+        IsZeroSigned = false,
+        NumberRounder = new IncrementNumberRounder() {
+            Increment = 0.0001,
+            RoundingAlgorithm = RoundingAlgorithm.RoundHalfUp,
+        }
+    };
+
     #endregion
 
     public EditorViewModel() {
@@ -200,7 +211,7 @@ public class EditorViewModel {
             int count = 0;
             foreach (var c in d.Commands) {
                 var element = new PathElement(c, prev);
-                element.Dump();
+                //element.Dump();
                 prev = c;
                 if (count < PathElementList.Count) {
                     PathElementList[count].Element.Value = element;
@@ -233,38 +244,44 @@ public class EditorViewModel {
             EditingMirror.Value = m == TransformType.Mirror;
             EditingRound.Value = m == TransformType.Round;
 
-            WorkingPath.Value = EditingPath.Value;
+            if (m != TransformType.None) {
+                WorkingPath.Value = EditingPath.Value;
+            }
         });
 
+        var changeEditingType = (TransformType type, bool on) => {
+            if(on) {
+                EditingTransformType.Value = type;
+                return true;
+            } else if(EditingTransformType.Value == type) {
+                EditingTransformType.Value = TransformType.None;
+            }
+            return false;
+        };
+
         EditingScale.Subscribe(b => {
-            if (b && EditingTransformType.Value != TransformType.Scale) {
+            if(changeEditingType(TransformType.Scale, b)) {
                 Scale.Value = 100;
                 ScaleX.Value = 100;
                 ScaleY.Value = 100;
-                EditingTransformType.Value = TransformType.Scale;
             }
         });
         EditingTranslate.Subscribe(b => {
-            if (b && EditingTransformType.Value != TransformType.Translate) {
+            if (changeEditingType(TransformType.Translate, b)) {
                 TranslateX.Value = 0;
                 TranslateY.Value = 0;
-                EditingTransformType.Value = TransformType.Translate;
             }
         });
         EditingRotation.Subscribe(b => {
-            if (b && EditingTransformType.Value != TransformType.Rotate) {
-                EditingTransformType.Value = TransformType.Rotate;
+            if (changeEditingType(TransformType.Rotate, b)) {
+                RotateAngle.Value = 0;
             }
         });
         EditingMirror.Subscribe(b => {
-            if (b && EditingTransformType.Value != TransformType.Mirror) {
-                EditingTransformType.Value = TransformType.Mirror;
-            }
+            changeEditingType(TransformType.Mirror, b);
         });
         EditingRound.Subscribe(b => {
-            if (b && EditingTransformType.Value != TransformType.Round) {
-                EditingTransformType.Value = TransformType.Round;
-            }
+            changeEditingType(TransformType.Round, b);
         });
 
         #endregion
@@ -337,32 +354,43 @@ public class EditorViewModel {
 
         #region Path Element Params
 
-        EndPointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasEnd == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        EndPointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.EndPointAbs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
-        EndPointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.EndPointAbs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
+        EndPointMarkVisibility = Observable.CombineLatest(SelectedElement, EditingPath, (selected,_) => (selected?.Element.Value.HasEnd == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
+        //EndPointOnScreenX = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, EditingPath, (selected,target, _)=>
+        //{
+        //    return (target ?? selected?.Element?.Value)?.EndPointAbs.X ?? 0;
+        //}).CombineLatest(CanvasWidth, (x,w)=> {
+        //    var xx = ScreenX(x, w);
+        //    Logger.debug($"EndPointOnScreenX: combined {xx}");
+        //    return xx;
+        //}).ToReadOnlyReactiveProperty();
+        //EndPointOnScreenX.Subscribe(x =>
+        //{
+        //    LoggerEx.debug($"EndPointOnScreenX subscribed ={x}");
+        //});
+        EndPointOnScreenX = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.EndPointAbs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        EndPointOnScreenY = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.EndPointAbs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         StartPointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasStart == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        StartPointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.StartPoint.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
-        StartPointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.StartPoint.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
+        StartPointOnScreenX = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.StartPoint.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        StartPointOnScreenY = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.StartPoint.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         Control1PointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasControl1 == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        Control1PointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.Control1Abs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
-        Control1PointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.Control1Abs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
+        Control1PointOnScreenX = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.Control1Abs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        Control1PointOnScreenY = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.Control1Abs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         Control2PointMarkVisibility = SelectedElement.Select(selected => (selected?.Element.Value.HasControl2 == true) ? Visibility.Visible : Visibility.Collapsed).ToReadOnlyReactiveProperty();
-        Control2PointOnScreenX = SelectedElement.Select(selected => selected?.Element.Value.Control2Abs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
-        Control2PointOnScreenY = SelectedElement.Select(selected => selected?.Element.Value.Control2Abs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
+        Control2PointOnScreenX = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.Control2Abs.X ?? 0).CombineLatest(CanvasWidth, ScreenX).ToReadOnlyReactiveProperty();
+        Control2PointOnScreenY = Observable.CombineLatest(SelectedElement, EditablePathElement.TargetElement, (selected, target) => (target ?? selected?.Element.Value)?.Control2Abs.Y ?? 0).CombineLatest(CanvasHeight, ScreenY).ToReadOnlyReactiveProperty();
 
         #endregion
 
         #region Editing Path Element
 
-        EditablePathElement.GeneratedPathCommand.Subscribe(c => {
-            var target = EditablePathElement.TargetElementRef;
-            if (target != null && EditablePathElement.IsModified) {
+        EditablePathElement.GeneratedPathCommand.Subscribe(cmd => {
+            if (cmd!=null) {
                 var drawable = EditingPathDrawable.Value;
                 if (drawable != null) {
-                    var newDrawable = drawable.ReplaceCommand(target.Current, c);
+                    var newDrawable = drawable.ReplaceCommand(EditablePathElement.ElementIndex, cmd);
                     EditingPathDrawable.Value = newDrawable;
                 }
             }
@@ -527,7 +555,11 @@ public class EditorViewModel {
 
     private void OnEditElement(PathElementViewModel model) {
         LoggerEx.debug($"OnDeleteElement: {model.CommandName.Value}");
-        EditablePathElement.BeginEdit(model.Element.Value);
+        var editing = EditingPathDrawable.Value;
+        if(editing == null) {
+            return;
+        }
+        EditablePathElement.BeginEdit(editing, model.Element.Value.Current);
     }
 
     private void OnEndEditElement(string done) {

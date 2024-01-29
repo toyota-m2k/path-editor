@@ -1,4 +1,5 @@
-﻿using PathEdit.Parser.Command;
+﻿using PathEdit.common;
+using PathEdit.Parser.Command;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -106,6 +107,11 @@ public class PathDrawable {
     //    Commands.Insert(index, command);
     //    return this;
     //}
+
+    public int IndexOf(PathCommand command) {
+        return Commands.IndexOf(command);
+    }
+
     public PathDrawable InsertCommand(PathCommand prev, PathCommand command) {
         var index = Commands.IndexOf(prev)+1;
         if(index>=Commands.Count) {
@@ -116,22 +122,26 @@ public class PathDrawable {
         return this;
     }
 
-    //public PathDrawable ReplaceCommand(int index, PathCommand command) {
-    //    Commands[index] = command;
-    //    return this;
-    //}
-
-    public PathDrawable ReplaceCommand(PathCommand at, PathCommand command) {
-        try
-        {
-            var index = Commands.IndexOf(at);
+    public PathDrawable ReplaceCommand(int index, PathCommand command) {
+        try {
             Commands[index] = command;
-        } catch(Exception ex)
-        {
-            Console.WriteLine(ex);
+        } catch(Exception ex) {
+            LoggerEx.error(ex);
         }
         return this;
     }
+
+    //public PathDrawable ReplaceCommand(PathCommand at, PathCommand command) {
+    //    try
+    //    {
+    //        var index = Commands.IndexOf(at);
+    //        Commands[index] = command;
+    //    } catch(Exception ex)
+    //    {
+    //        Console.WriteLine(ex);
+    //    }
+    //    return this;
+    //}
 
     #endregion
 }
