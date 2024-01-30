@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using System;
+using System.Globalization;
 using Windows.Globalization.NumberFormatting;
 
 namespace PathEdit;
@@ -52,15 +53,49 @@ public class PointStringConverter : IValueConverter {
     }
 }
 
-public static class ConvertUtils {
-    public static DecimalFormatter CoordinateFormatter { get; } = new() {
-        FractionDigits = 2,
-        IsZeroSigned = false,
-        NumberRounder = new IncrementNumberRounder() {
-            Increment = 0.0001,
-            RoundingAlgorithm = RoundingAlgorithm.RoundHalfUp,
-        }
-    };
+public class EnumToIntConverter : IValueConverter {
+    public object Convert(object value, Type targetType, object parameter, string culture) {
+        if (value == null)
+            throw new ArgumentNullException(nameof(value));
 
+        if (!(value is Enum enumValue))
+            throw new ArgumentException("Value is not of type Enum", nameof(value));
 
+        return System.Convert.ToInt32(enumValue);
+    }
+
+    public object? ConvertBack(object value, Type targetType, object parameter, string culture) {
+        if (value == null)
+            throw new ArgumentNullException(nameof(value));
+
+        if (!(value is int intValue))
+            throw new ArgumentException("Value is not of type int", nameof(value));
+
+        //if (parameter == null)
+        //    throw new ArgumentNullException(nameof(parameter));
+
+        //if (!(parameter is Type enumType))
+        //    throw new ArgumentException("Parameter is not of type Type", nameof(parameter));
+
+        if (!targetType.IsEnum)
+            throw new ArgumentException("Parameter is not an Enum type", nameof(parameter));
+
+        if (!Enum.IsDefined(targetType, intValue))
+            intValue = 0;
+
+        return Enum.ToObject(targetType, intValue);
+    }
 }
+
+//public static class ConvertUtils {
+//    public static DecimalFormatter CoordinateFormatter { get; } = new() {
+//        FractionDigits = 2,
+//        IsZeroSigned = false,
+//        NumberRounder = new IncrementNumberRounder() {
+//            Increment = 0.0001,
+//            RoundingAlgorithm = RoundingAlgorithm.RoundHalfUp,
+//        }
+//    };
+
+
+//}

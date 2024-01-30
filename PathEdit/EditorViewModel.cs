@@ -184,6 +184,8 @@ public class EditorViewModel {
 
 
     public EditablePathElement EditablePathElement { get; } = new();
+    public PathCommandDialogViewModel PathCommandDialogViewModel { get; } = new();
+    public ReactiveCommand<int> PathElementAppendedEvent { get; } = new();
 
     public DecimalFormatter CoordinateFormatter { get; } = new() {
         FractionDigits = 2,
@@ -396,6 +398,7 @@ public class EditorViewModel {
             }
         });
 
+
         #endregion
     }
 
@@ -571,8 +574,18 @@ public class EditorViewModel {
         EditablePathElement.EndEdit();
     }
 
-    private void OnInsertElement(PathElementViewModel model) {
+    private async void OnInsertElement(PathElementViewModel model) {
         LoggerEx.debug($"OnInsertElement: {model.CommandName.Value}");
+        var drawable = EditingPathDrawable.Value;
+        if(drawable == null) {
+            return;
+        }
+        var cmd = await PathCommandDialogViewModel.ShowDialogAsync(model.Element.Value);
+        if(cmd!=null) {
+            var index = drawable.IndexOf(model.Element.Value.Current)+1;
+            EditingPathDrawable.Value = drawable.InsertCommand(index, cmd);
+            PathElementAppendedEvent.Execute(index);
+        }
     }
     /**
      * 座標値のチェック

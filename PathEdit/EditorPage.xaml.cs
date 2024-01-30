@@ -28,6 +28,7 @@ public sealed partial class EditorPage : Page {
         ViewModel.SelectedElement.Subscribe(_ => {
             PathCanvas.Invalidate();
         });
+        ViewModel.PathElementAppendedEvent.Subscribe(OnPathElementAppended);
     }
 
     #region Drawing
@@ -186,4 +187,11 @@ public sealed partial class EditorPage : Page {
             }
         }
     }
+
+    private void OnPathElementAppended(int index) {
+        PathElementListView.SelectedIndex = index;
+        ViewModel.EditCommand.Execute(ViewModel.PathElementList[index]);
+    }
+
+
 }

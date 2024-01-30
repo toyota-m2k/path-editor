@@ -112,8 +112,7 @@ public class PathDrawable {
         return Commands.IndexOf(command);
     }
 
-    public PathDrawable InsertCommand(PathCommand prev, PathCommand command) {
-        var index = Commands.IndexOf(prev)+1;
+    public PathDrawable InsertCommand(int index, PathCommand command) {
         if(index>=Commands.Count) {
             Commands.Add(command);
         } else {

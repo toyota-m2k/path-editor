@@ -16,6 +16,7 @@
         <local:NegBoolVisibilityConverter x:Key="NegBoolVisibilityConverter"/>
         <local:NegBoolConverter x:Key="NegBoolConverter"/>
         <local:PointStringConverter x:Key="PointStringConverter"/>
+        <local:EnumToIntConverter x:Key="EnumToIntConverter"/>
     </Page.Resources>
     <Grid
         x:Name="RootGrid"
@@ -65,7 +66,7 @@
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
                     <w:DataTemplate x:Key="ListViewItemTemplate" x:DataType="local:PathElementViewModel">
-                        <Grid Width="300" MinHeight="40" VerticalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="CornflowerBlue">
+                        <Grid Width="400" MinHeight="40" VerticalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="CornflowerBlue">
                             <Grid ColumnSpacing="6" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -114,17 +115,17 @@
                             </Grid>
                             <!-- 選択されたエレメントに対する操作ボタン -->
                             <StackPanel Background="#8888" Padding="4,3" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center" HorizontalAlignment="Right" Visibility="{x:Bind CanEdit.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
-                                <Button Command="{x:Bind EditCommand}" CommandParameter="{x:Bind}" Padding="2" Background="Blue">
+                                <Button Command="{x:Bind EditCommand}" CommandParameter="{x:Bind}" Padding="2" Background="#603F">
                                     <Viewbox Width="20" Height="20">
                                         <PathIcon Foreground="White" Width="24" Height="24" Data="M 20.71 7.04C 21.1 6.65 21.1 6 20.71 5.63L 18.37 3.29C 18 2.9 17.35 2.9 16.96 3.29L 15.12 5.12 18.87 8.87M 3 17.25V 21H 6.75L 17.81 9.93 14.06 6.18 3 17.25Z"/>
                                     </Viewbox>
                                 </Button>
-                                <Button Command="{x:Bind InsertCommand}" CommandParameter="{x:Bind}" Padding="2" Background="Blue">
+                                <Button Command="{x:Bind InsertCommand}" CommandParameter="{x:Bind}" Padding="2" Background="#603F">
                                     <Viewbox Width="20" Height="20">
                                         <PathIcon Foreground="White" Width="24" Height="24" Data="M17,13H13V17H11V13H7V11H11V7H13V11H17M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z"/>
                                     </Viewbox>
                                 </Button>
-                                <Button Command="{x:Bind DeleteCommand}" CommandParameter="{x:Bind}" Padding="2" IsEnabled="{x:Bind CanDelete.Value, Mode=OneWay}" Background="Blue">
+                                <Button Command="{x:Bind DeleteCommand}" CommandParameter="{x:Bind}" Padding="2" IsEnabled="{x:Bind CanDelete.Value, Mode=OneWay}" Background="#603F">
                                     <Viewbox Width="20" Height="20">
                                         <PathIcon Foreground="White" Width="24" Height="24" Data="M 9 3V 4H 4V 6H 5V 19A 2,2,0,0,0,7,21H 17A 2,2,0,0,0,19,19V 6H 20V 4H 15V 3H 9M 9 8H 11V 17H 9V 8M 13 8H 15V 17H 13V 8Z"/>
                                     </Viewbox>
@@ -137,6 +138,7 @@
                 
                 <!-- パス要素リスト -->
                 <ListView 
+                    x:Name="PathElementListView"
                     Grid.Column="0" 
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Left"
@@ -486,23 +488,24 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="X: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
-                            <NumberBox Grid.Row="0" Grid.Column="1" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsX.Value, Mode=TwoWay}" Width="64"/>
-                            <p:RepeatButton Grid.Row="0" Grid.Column="2" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ex-" Padding="0">
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="X: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointXEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}"/>
+                            <NumberBox Grid.Row="0" Grid.Column="1" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsX.Value, Mode=TwoWay}" Width="64" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointXEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}"/>
+                            <p:RepeatButton Grid.Row="0" Grid.Column="2" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ex-" Padding="0" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointXEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}">
                                 <PathIcon Width="24" Height="24" Data="M19,13H5V11H19V13Z"/>
                             </p:RepeatButton>
-                            <Slider Grid.Row="0" Grid.Column="3" Minimum="0" Maximum="24" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsX.Value, Mode=TwoWay}"/>
-                            <p:RepeatButton Grid.Row="0" Grid.Column="4" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ex+" Padding="0">
+                            <Slider Grid.Row="0" Grid.Column="3" Minimum="0" Maximum="24" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsX.Value, Mode=TwoWay}" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointXEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}"/>
+                            <p:RepeatButton Grid.Row="0" Grid.Column="4" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ex+" Padding="0" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointXEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}">
                                 <PathIcon  Width="24" Height="24" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                             </p:RepeatButton>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Y: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
-                            <NumberBox Grid.Row="1" Grid.Column="1" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsY.Value, Mode=TwoWay}" Width="64"/>
-                            <p:RepeatButton Grid.Row="1" Grid.Column="2" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ey-" Padding="0">
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Y: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointYEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}"/>
+                            <NumberBox Grid.Row="1" Grid.Column="1" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsY.Value, Mode=TwoWay}" Width="64" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointYEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}"/>
+                            <p:RepeatButton Grid.Row="1" Grid.Column="2" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ey-" Padding="0" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointYEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}">
                                 <PathIcon Width="24" Height="24" Data="M19,13H5V11H19V13Z"/>
                             </p:RepeatButton>
-                            <Slider Grid.Row="1" Grid.Column="3" Minimum="0" Maximum="24" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsY.Value, Mode=TwoWay}"/>
-                            <p:RepeatButton Grid.Row="1" Grid.Column="4" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ey+" Padding="0">
+                            <Slider Grid.Row="1" Grid.Column="3" Minimum="0" Maximum="24" Value="{x:Bind ViewModel.EditablePathElement.EndPointAbsY.Value, Mode=TwoWay}" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointYEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}"/>
+                            <p:RepeatButton Grid.Row="1" Grid.Column="4" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ey+" Padding="0" Visibility="{x:Bind ViewModel.EditablePathElement.IsEndPointYEditable.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}">
                                 <PathIcon  Width="24" Height="24" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                             </p:RepeatButton>
                         </Grid>
@@ -664,6 +667,48 @@
 
                     </StackPanel>
                     <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="true"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+        <!-- ダイアログ -->
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#6000"
+              Visibility="{x:Bind ViewModel.PathCommandDialogViewModel.IsActive.Value, Mode=OneWay}">
+
+            <Grid Background="White"  HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" HorizontalAlignment="Stretch" Padding="10,4" Background="Purple">
+                    <TextBlock Text="Add Path Element" Foreground="White" VerticalAlignment="Center"/>
+                    <Button HorizontalAlignment="Right" Padding="0" Command="{x:Bind ViewModel.PathCommandDialogViewModel.CancelCommand}">
+                        <PathIcon Width="24" Height="24" Data="M 19 6.41L 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/>
+                    </Button>
+                </Grid>
+                <StackPanel Grid.Row="1" Orientation="Vertical" 
+                    Spacing="8"
+                    Padding="20"
+                    >
+                    <Border Background="#F8F8F8" BorderThickness="1" BorderBrush="Gray" Padding="10">
+                        <RadioButtons Header="Element Type" SelectedIndex="{x:Bind ViewModel.PathCommandDialogViewModel.Kind.Value, Mode=TwoWay, Converter={w:StaticResource EnumToIntConverter}}" 
+                          MaxColumns="2">
+                            <RadioButton Content="Move"/>
+                            <RadioButton Content="Line"/>
+                            <RadioButton Content="Horizontal Line"/>
+                            <RadioButton Content="Vertical Line"/>
+                            <RadioButton Content="Bezier Quadratic"/>
+                            <RadioButton Content="Bezier Cubic"/>
+                            <RadioButton Content="Smooth Bezier Quadratic"/>
+                            <RadioButton Content="Smooth Bezier Cubic"/>
+                            <RadioButton Content="Arc"/>
+                            <RadioButton Content="Close"/>
+                        </RadioButtons>
+                    </Border>
+                    <CheckBox Content="Relative" IsChecked="{x:Bind ViewModel.PathCommandDialogViewModel.IsRelative.Value, Mode=TwoWay}"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                        <Button Content="OK" Command="{x:Bind ViewModel.PathCommandDialogViewModel.OkCommand}" Width="80"/>
+                        <Button Content="Cancel" Command="{x:Bind ViewModel.PathCommandDialogViewModel.CancelCommand}" Width="80"/>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Grid>
