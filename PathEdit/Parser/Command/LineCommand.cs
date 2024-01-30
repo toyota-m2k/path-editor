@@ -3,9 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
+using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
-internal class LineCommand : PathCommand {
+public class LineCommand : PathCommand {
     public LineCommand(bool isRelative, Point endPoint) : base(isRelative, endPoint) {
     }
 
@@ -17,12 +18,15 @@ internal class LineCommand : PathCommand {
         var endPoint = ResolveRelativePoint(EndPoint, prev?.LastResolvedPoint ?? new Point(0, 0));
         graphics.LineTo(endPoint);
         LastResolvedPoint = endPoint;
-        LoggerEx.info($"LineCommand.DrawTo: {endPoint}");
+        //LoggerEx.info($"LineCommand.DrawTo: {endPoint}");
     }
+
+    public override string CommandName => IsRelative ? "l" : "L";
+    public override string DispalyName => "Line";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
         if (!(prevCommand is LineCommand)) {
-            sb.Append(IsRelative ? "l" : "L");
+            sb.Append(CommandName);
         }
         sb.Append(" ");
         sb.Append(EndPoint.X);

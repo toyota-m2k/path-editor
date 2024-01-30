@@ -5,11 +5,24 @@ using System.Windows;
 using System.Windows.Media;
 
 namespace PathEdit.Parser;
-internal abstract class PathCommand {
+public abstract class PathCommand {
     protected static readonly Point PointZero = new Point(0, 0);
     public bool IsRelative { get; set; }
     public Point EndPoint { get; set; }
     public Point LastResolvedPoint { get; protected set; } = new Point(0, 0);
+
+    /**
+     * V/HコマンドのEndPointを補正するためだけのメソッド
+     * ResolveEndPointとかLastResolvedPointは、相対座標を絶対座標に変換するのに対して、
+     * このメソッドは、VコマンドのEndPoint.X, HコマンドのEndPoint.Yを補完するのが目的。
+     * IsRelativeの値と、EndPointの値が対応するよう動作する。
+     */
+    public virtual Point CorrectedEndPoint(PathCommand? prevCommand) {
+        return EndPoint;
+    }
+
+    public abstract string CommandName { get; }
+    public abstract string DispalyName { get; }
 
     public abstract void DrawTo(IGraphics graphics, PathCommand? prevCommand);
     public abstract void ComposeTo(StringBuilder sb, PathCommand? prevCommand);
@@ -35,7 +48,7 @@ internal abstract class PathCommand {
     }
 
     public void ResolveEndPoint(PathCommand? prevCommand) {
-        LastResolvedPoint = ResolveRelativePoint(EndPoint, prevCommand?.LastResolvedPoint);
+        LastResolvedPoint = ResolveRelativePoint(CorrectedEndPoint(prevCommand), prevCommand?.LastResolvedPoint);
     }
 
     protected Point Absolute2Relative(Point point, Point? basePoint) {
@@ -46,7 +59,7 @@ internal abstract class PathCommand {
         return new Point(point.X - bp.X, point.Y - bp.Y);
     }
 
-    protected Point ResolveRelativePoint(Point point, Point? basePoint) {
+    public Point ResolveRelativePoint(Point point, Point? basePoint) {
         if (!IsRelative) {
             return point;
         }
