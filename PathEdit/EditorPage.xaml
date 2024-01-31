@@ -13,6 +13,9 @@
     Background="{w:ThemeResource ApplicationPageBackgroundThemeBrush}"
     PreviewKeyDown="OnPreviewKeyDown"
     KeyDown="OnKeyDown"
+    PointerPressed="OnPageMouseClicked"
+    PointerMoved="OnPageMouseMoved"
+    PointerReleased="OnPageMouseReleased"
     >
     <Page.Resources>
         <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter"/>
@@ -177,11 +180,15 @@
                         HorizontalAlignment="Center"
                         Draw="CanvasControl_Draw"/>
                     <w:Ellipse 
+                        Tag="ps"
+                        PointerPressed="OnMouseClick"
                         Width="20" Height="20" Fill="Red"
                         Canvas.Left="{x:Bind ViewModel.ScalePivotOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.ScalePivotOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.EditingScale.Value, Mode=OneWay}"/>
                     <w:Ellipse 
+                        Tag="pr"
+                        PointerPressed="OnMouseClick"
                         Width="20" Height="20" Fill="Red"
                         Canvas.Left="{x:Bind ViewModel.RotatePivotOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.RotatePivotOnScreenY.Value, Mode=OneWay}"
@@ -197,6 +204,8 @@
                         </Grid>
                     </Viewbox>
                     <Viewbox
+                        Tag="end"
+                        PointerPressed="OnMouseClick"
                         Width="20" Height="20"
                         Canvas.Left="{x:Bind ViewModel.EndPointOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.EndPointOnScreenY.Value, Mode=OneWay}"
@@ -207,6 +216,8 @@
                         </Grid>
                     </Viewbox>
                     <Viewbox
+                        Tag="c1"
+                        PointerPressed="OnMouseClick"
                         Width="20" Height="20"
                         Canvas.Left="{x:Bind ViewModel.Control1PointOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.Control1PointOnScreenY.Value, Mode=OneWay}"
@@ -217,6 +228,8 @@
                         </Grid>
                     </Viewbox>
                     <Viewbox
+                        Tag="c2"
+                        PointerPressed="OnMouseClick"
                         Width="20" Height="20"
                         Canvas.Left="{x:Bind ViewModel.Control2PointOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.Control2PointOnScreenY.Value, Mode=OneWay}"

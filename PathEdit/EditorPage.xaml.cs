@@ -245,4 +245,108 @@ public sealed partial class EditorPage : Page {
                 break;
         }
     }
+
+    class MouseDragger {
+        EditorPage Page;
+        string Target;
+        Windows.Foundation.Point DragStart;
+        double TargetOrgX = 0;
+        double TargetOrgY = 0;
+
+        private EditorViewModel ViewModel => Page.ViewModel;
+
+        public MouseDragger(EditorPage page, FrameworkElement view, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
+            Target = (string)view.Tag;
+            Page = page;
+            DragStart = e.GetCurrentPoint(page).Position;
+            page.CapturePointer(e.Pointer);
+
+            switch (Target) {
+                case "end":
+                    TargetOrgX = ViewModel.EditablePathElement.EndPointAbsX.Value;
+                    TargetOrgY = ViewModel.EditablePathElement.EndPointAbsY.Value;
+                    break;
+                case "c1":
+                    TargetOrgX = ViewModel.EditablePathElement.Control1PointAbsX.Value;
+                    TargetOrgY = ViewModel.EditablePathElement.Control1PointAbsY.Value;
+                    break;
+                case "c2":
+                    TargetOrgX = ViewModel.EditablePathElement.Control2PointAbsX.Value;
+                    TargetOrgY = ViewModel.EditablePathElement.Control2PointAbsY.Value;
+                    break;
+                case "ps":
+                    TargetOrgX = ViewModel.RotatePivotX.Value;
+                    TargetOrgY = ViewModel.RotatePivotY.Value;
+                    break;
+                case "pr":
+                    TargetOrgX = ViewModel.RotatePivotX.Value;
+                    TargetOrgY = ViewModel.RotatePivotY.Value;
+                    break;
+            }
+        }
+
+        public void OnPointerMoved(Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
+            var p = e.GetCurrentPoint(Page).Position;
+            var dx = p.X - DragStart.X;
+            var dy = p.Y - DragStart.Y;
+            var x = TargetOrgX + dx*ViewModel.PathWidth.Value/ViewModel.CanvasWidth.Value;
+            var y = TargetOrgY + dy*ViewModel.PathHeight.Value/ViewModel.CanvasHeight.Value;
+            switch (Target) {
+                case "end":
+                    ViewModel.EditablePathElement.EndPointAbsX.Value = x;
+                    ViewModel.EditablePathElement.EndPointAbsY.Value = y;
+                    break;
+                case "c1":
+                    ViewModel.EditablePathElement.Control1PointAbsX.Value = x;
+                    ViewModel.EditablePathElement.Control1PointAbsY.Value = y;
+                    break;
+                case "c2":
+                    ViewModel.EditablePathElement.Control2PointAbsX.Value = x;
+                    ViewModel.EditablePathElement.Control2PointAbsY.Value = y;
+                    break;
+                case "ps":
+                    ViewModel.RotatePivotX.Value = x;
+                    ViewModel.RotatePivotY.Value = y;
+                    break;
+                case "pr":
+                    ViewModel.RotatePivotX.Value = x;
+                    ViewModel.RotatePivotY.Value = y;
+                    break;
+            }
+        }
+        public void OnEndDrag(Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
+            Page.ReleasePointerCapture(e.Pointer);
+        }
+    }
+
+    private MouseDragger? DragInfo = null;
+    private void OnMouseClick(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
+        if(!ViewModel.EditablePathElement.IsEditing.Value) {
+            return;
+        }
+        if(DragInfo != null) {
+            DragInfo = null;
+            return;
+        }
+        DragInfo = new MouseDragger(this, (FrameworkElement)sender, e);
+    }
+
+    private void OnPageMouseClicked(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
+        LoggerEx.debug($"{sender}");
+        var p = e.GetCurrentPoint(this).Position;
+        LoggerEx.debug($"{p}");
+
+        //CapturePointer(e.Pointer);
+    }
+
+    private void OnPageMouseMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
+        //LoggerEx.debug($"{sender}");
+        DragInfo?.OnPointerMoved(e);
+    }
+
+    private void OnPageMouseReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
+        LoggerEx.debug($"{sender}");
+        DragInfo?.OnEndDrag(e);
+        DragInfo = null;
+    }
 }
