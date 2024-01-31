@@ -409,10 +409,11 @@ public class EditorViewModel {
      */
     private void UpdatePathDrawable(string path) {
         try {
-            EditingPathDrawable.Value = PathDrawable.Parse(path);
+            var drawable = PathDrawable.Parse(path);
+            EditingPathDrawable.Value = drawable;
         }
         catch (Exception) {
-            EditingPathDrawable.Value = PathDrawable.Parse("M 0 0");
+            // EditingPathDrawable.Value = PathDrawable.Parse("M 0 0");
         }
     }
 

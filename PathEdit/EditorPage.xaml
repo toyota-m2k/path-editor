@@ -10,7 +10,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:win2dcanvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
     mc:Ignorable="d"
-    Background="{w:ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{w:ThemeResource ApplicationPageBackgroundThemeBrush}"
+    PreviewKeyDown="OnPreviewKeyDown"
+    KeyDown="OnKeyDown"
+    >
     <Page.Resources>
         <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter"/>
         <local:NegBoolVisibilityConverter x:Key="NegBoolVisibilityConverter"/>
@@ -49,7 +52,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Source Path" FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.SourcePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Paste="OnPaste" HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Mode=OneWay, Converter={w:StaticResource NegBoolConverter}}"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.SourcePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Mode=OneWay, Converter={w:StaticResource NegBoolConverter}}"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Result" FontWeight="Bold" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.EditingPath.Value, Mode=OneWay}" HorizontalAlignment="Stretch" IsReadOnly="True"/>

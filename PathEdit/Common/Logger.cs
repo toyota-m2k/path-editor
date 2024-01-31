@@ -193,7 +193,7 @@ public class TimeLogger {
         Logger.debug($"{prefix} - {label}: {Total} ms");
     }
 
-    public static TimeLogger CreateInstance(string prefix) {
+    public static TimeLogger? CreateInstance(string prefix) {
 #if DEBUG
         return new TimeLogger(prefix);
 #else

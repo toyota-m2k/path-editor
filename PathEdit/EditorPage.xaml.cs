@@ -1,4 +1,5 @@
 using Microsoft.Graphics.Canvas;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -7,7 +8,9 @@ using PathEdit.Graphics;
 using PathEdit.Parser;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System;
 using Windows.UI;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -21,6 +24,9 @@ public sealed partial class EditorPage : Page {
     private EditorViewModel ViewModel { get; } = new EditorViewModel();
     public EditorPage() {
         this.InitializeComponent();
+        ViewModel.SourcePath.Subscribe(_ => {
+            PathElementListView.SelectedIndex = -1;
+        });
         ViewModel.EditingPath.Subscribe(_ => {
             PathCanvas.Invalidate();
         });
@@ -83,28 +89,33 @@ public sealed partial class EditorPage : Page {
 
     #region Clipboard / Drag & Drop
 
-    private async void OnPaste(object sender, Microsoft.UI.Xaml.Controls.TextControlPasteEventArgs e) {
-        LoggerEx.debug("OnPaste");
-
-        e.Handled = true;
-        if(ViewModel.EditablePathElement.IsEditing.Value) {
-            return; // パス要素編集中はソース変更不可とする
+    private bool Paste() {
+        if (ViewModel.EditablePathElement.IsEditing.Value) {
+            return false; // パス要素編集中はソース変更不可とする
         }
         var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
         if (dataPackageView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text)) {
             try {
-                var text = await dataPackageView.GetTextAsync();
+                var text = dataPackageView.GetTextAsync().GetAwaiter().GetResult();
+                //var text = await dataPackageView.GetTextAsync();
                 var path = ViewModel.CheckAndExtractPath(text);
-                if (path != null) {
+                if (!string.IsNullOrWhiteSpace(path)) {
                     ViewModel.SourcePath.Value = path;
+                    return true;
                 }
             }
             catch (Exception) {
                 // Ignore or handle exception as needed.
             }
         }
-
+        return false;
     }
+
+    //private async void OnPasteToSourceTextBox(object sender, Microsoft.UI.Xaml.Controls.TextControlPasteEventArgs e) {
+    //    LoggerEx.debug("OnPaste");
+
+    //    e.Handled = Paste();
+    //}
 
     private void OnDragOver(object sender, Microsoft.UI.Xaml.DragEventArgs e) {
         LoggerEx.debug("OnDragOver");
@@ -169,20 +180,22 @@ public sealed partial class EditorPage : Page {
     #endregion
 
     private void OnPathElementListItemClicked(object sender, ItemClickEventArgs e) {
-        if(e.ClickedItem == ViewModel.SelectedElement.Value) {
+        if (e.ClickedItem == ViewModel.SelectedElement.Value) {
             ViewModel.SelectedElement.Value = null;
-        } else {
+        }
+        else {
             ViewModel.SelectedElement.Value = (PathElementViewModel)e.ClickedItem;
         }
     }
 
     private void OnPathElementListSelectionChanged(object sender, SelectionChangedEventArgs e) {
         var sel = (PathElementViewModel?)e.AddedItems.FirstOrDefault();
-        if (sel!=ViewModel.SelectedElement.Value) {
+        if (sel != ViewModel.SelectedElement.Value) {
             var prev = (PathElementViewModel?)e.RemovedItems.FirstOrDefault();
-            if (prev== ViewModel.SelectedElement.Value) {
+            if (prev == ViewModel.SelectedElement.Value) {
                 ViewModel.SelectedElement.Value = sel;
-            } else {
+            }
+            else {
                 ViewModel.SelectedElement.Value = null;
             }
         }
@@ -193,5 +206,45 @@ public sealed partial class EditorPage : Page {
         ViewModel.EditCommand.Execute(ViewModel.PathElementList[index]);
     }
 
+    private bool IsCtrlKeyDown => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down;
+    private void OnPreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e) {
+        switch (e.Key) {
+            case Windows.System.VirtualKey.C:
+                if (IsCtrlKeyDown) {
+                    ViewModel.CopyCommand.Execute(null);
+                    e.Handled = true;
+                }
+                break;
+            case Windows.System.VirtualKey.Escape:
+                if (ViewModel.EditingTransformType.Value != EditorViewModel.TransformType.None) {
+                    ViewModel.EditingTransformType.Value = EditorViewModel.TransformType.None;
+                    e.Handled = true;
+                }
+                else if (ViewModel.PathCommandDialogViewModel.IsActive.Value) {
+                    ViewModel.PathCommandDialogViewModel.IsActive.Value = false;
+                    e.Handled = true;
+                }
+                else if (ViewModel.EditablePathElement.IsEditing.Value) {
+                    ViewModel.EditablePathElement.EndEdit();
+                    e.Handled = true;
+                }
+                else if (ViewModel.SelectedElement.Value != null) {
+                    ViewModel.SelectedElement.Value = null;
+                    e.Handled = true;
+                }
+                break;
+            default:
+                break;
+        }
+    }
 
+    private void OnKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e) {
+        switch (e.Key) {
+            case Windows.System.VirtualKey.V:
+                if (IsCtrlKeyDown) {
+                    e.Handled = Paste();
+                }
+                break;
+        }
+    }
 }
