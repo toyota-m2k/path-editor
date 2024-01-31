@@ -6,8 +6,6 @@ using System.Reactive.Linq;
 using PathEdit.common;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
-using PathEdit.Parser.Command;
-using System.Security.Cryptography.X509Certificates;
 using Windows.Globalization.NumberFormatting;
 
 namespace PathEdit;

@@ -4,8 +4,6 @@ using PathEdit.Parser;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using System.Windows;
-using System.Net;
-using Windows.Devices.Radios;
 using System;
 
 namespace PathEdit;

@@ -1,10 +1,7 @@
-﻿using PathEdit.common;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Text;
 using System.Windows;
-using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 public class LineHorzCommand : PathCommand {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.Geometry;
 using PathEdit.Parser;
-using System;
 using System.Numerics;
 using System.Windows;
 using Windows.UI;

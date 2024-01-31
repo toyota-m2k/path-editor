@@ -1,9 +1,7 @@
-﻿using PathEdit.common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
-using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 public class LineCommand : PathCommand {
