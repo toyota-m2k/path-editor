@@ -178,6 +178,8 @@ public sealed partial class EditorPage : Page {
 
     #endregion
 
+    #region Path Element Item Selection
+
     private void OnPathElementListItemClicked(object sender, ItemClickEventArgs e) {
         if (e.ClickedItem == ViewModel.SelectedElement.Value) {
             ViewModel.SelectedElement.Value = null;
@@ -205,7 +207,13 @@ public sealed partial class EditorPage : Page {
         ViewModel.EditCommand.Execute(ViewModel.PathElementList[index]);
     }
 
+    #endregion
+
+    #region Keyboard Shortcuts
+
     private bool IsCtrlKeyDown => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down;
+    private bool IsShiftKeyDown => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down;
+
     private void OnPreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e) {
         switch (e.Key) {
             case Windows.System.VirtualKey.C:
@@ -244,8 +252,24 @@ public sealed partial class EditorPage : Page {
                     e.Handled = Paste();
                 }
                 break;
+            case Windows.System.VirtualKey.Z:
+                if (IsCtrlKeyDown) {
+                    if(IsShiftKeyDown) {
+                        ViewModel.RedoCommand.Execute();
+                        e.Handled = true;
+                    }
+                    else {
+                        ViewModel.UndoCommand.Execute();
+                        e.Handled = true;
+                    }
+                }
+                break;
         }
     }
+
+    #endregion
+
+    #region Mouse Dragging
 
     class MouseDragger {
         EditorPage Page;
@@ -355,4 +379,5 @@ public sealed partial class EditorPage : Page {
         DragInfo?.OnEndDrag(e);
         DragInfo = null;
     }
+    #endregion
 }

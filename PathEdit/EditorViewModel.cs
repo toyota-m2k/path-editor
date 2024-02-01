@@ -7,6 +7,7 @@ using PathEdit.common;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using Windows.Globalization.NumberFormatting;
+using System.Collections.Generic;
 
 namespace PathEdit;
 
@@ -195,6 +196,78 @@ public class EditorViewModel {
     };
 
     #endregion
+
+    #region Undo / Redo
+
+    public List<string> UndoBuffer { get; } = new();
+    public ReactiveProperty<int> CurrentUndoIndex { get; set; } = new(-1, ReactivePropertyMode.RaiseLatestValueOnSubscribe);
+    public ReadOnlyReactiveProperty<bool> CanUndo { get; }
+    public ReadOnlyReactiveProperty<bool> CanRedo { get; }
+    public ReactiveCommand UndoCommand { get; } = new();
+    public ReactiveCommand RedoCommand { get; } = new();
+
+    private bool CanUndoRedo() {
+        // 編集中の場合はUndo/Redoは無効としておく
+        if (EditingTransformType.Value != TransformType.None) {
+            return false;
+        }
+        if (EditablePathElement.IsEditing.Value) {
+            return false;
+        }
+        return true;
+    }
+
+
+    private void PushUndoBuffer(string path) {
+        if(!CanUndoRedo()) {
+            return;
+        }
+        if(0<=CurrentUndoIndex.Value) {
+            if(UndoBuffer[CurrentUndoIndex.Value] == path) {
+                return; // 同じものは積まない
+            }
+        }
+        if (CurrentUndoIndex.Value+1 < UndoBuffer.Count) {
+            UndoBuffer.RemoveRange(CurrentUndoIndex.Value+1, UndoBuffer.Count - CurrentUndoIndex.Value-1);
+        }
+        UndoBuffer.Add(path);
+        CurrentUndoIndex.Value++;
+    }
+    private void Undo() {
+        if (!CanUndoRedo()) {
+            return;
+        }
+        if (UndoBuffer.Count > 0 && CurrentUndoIndex.Value > 0) {
+            CurrentUndoIndex.Value--;
+            SelectedElement.Value = null;
+            try {
+                var path = UndoBuffer[CurrentUndoIndex.Value];
+                EditingPathDrawable.Value = PathDrawable.Parse(UndoBuffer[CurrentUndoIndex.Value]);
+            }
+            catch (Exception e) {
+                LoggerEx.error(e);
+            }
+        }
+    }
+    private void Redo() {
+        if (!CanUndoRedo()) {
+            return;
+        }
+        if (CurrentUndoIndex.Value+1 < UndoBuffer.Count) {
+            CurrentUndoIndex.Value++;
+            SelectedElement.Value = null;
+            try {
+                var path = UndoBuffer[CurrentUndoIndex.Value];
+                EditingPathDrawable.Value = PathDrawable.Parse(UndoBuffer[CurrentUndoIndex.Value]);
+            }
+            catch (Exception e) {
+                LoggerEx.error(e);
+            }
+        }
+    }
+
+    #endregion
+
 
     public EditorViewModel() {
         EditingPath = EditingPathDrawable.Select(d => {
@@ -396,6 +469,25 @@ public class EditorViewModel {
             }
         });
 
+
+        #endregion
+
+        #region Undo / Redo
+
+        CanUndo = CurrentUndoIndex.Select(i => i > 0).ToReadOnlyReactiveProperty();
+        CanRedo = CurrentUndoIndex.Select(i => i < UndoBuffer.Count - 1).ToReadOnlyReactiveProperty();
+        UndoCommand.Subscribe(Undo);
+        RedoCommand.Subscribe(Redo);
+
+        Observable.CombineLatest(EditingPath, EditingTransformType, EditablePathElement.IsEditing, (path, type, editing) => (path, type, editing)).Subscribe(t => {
+            if (t.type != TransformType.None) {
+                return;
+            }
+            if (t.editing) {
+                return;
+            }
+            PushUndoBuffer(t.path);
+        });
 
         #endregion
     }
