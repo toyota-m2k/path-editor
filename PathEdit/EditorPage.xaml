@@ -66,9 +66,9 @@
             </Grid>
             <Grid Grid.Row="1" Grid.ColumnSpacing="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="434"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="384"/>
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
                     <w:DataTemplate x:Key="ListViewItemTemplate" x:DataType="local:PathElementViewModel">
@@ -148,7 +148,8 @@
                     Grid.Column="0" 
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Left"
-                    Background="AliceBlue" Margin="0,10,0,0"
+                    Background="AliceBlue" 
+                    Margin="0,10,0,0"
                     SelectionMode="Single"
                     IsItemClickEnabled="True"
                     ItemTemplate="{w:StaticResource ListViewItemTemplate}"
@@ -243,7 +244,7 @@
                 </Canvas>
 
                 <!-- トランスフォーム操作エリア -->
-                <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="15" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}">
+                <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="15" HorizontalAlignment="Stretch" VerticalAlignment="Top" Visibility="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}" Margin="0,10,0,0">
                     <!-- Scaling -->
                     <Expander
                         IsExpanded="{x:Bind ViewModel.EditingScale.Value, Mode=TwoWay}"
@@ -478,17 +479,21 @@
                         </Expander.Content>
                     </Expander>
                 </StackPanel>
-                <!-- コマンドエレメントの編集パネル -->
-                <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="4" Width="350" VerticalAlignment="Center" Visibility="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                        <TextBlock Text="{x:Bind ViewModel.EditablePathElement.DisplayName.Value, Mode=OneWay}" FontWeight="Bold" VerticalAlignment="Center"/>
-                        <CheckBox IsChecked="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Mode=TwoWay}" Content="Relative" Visibility="{x:Bind ViewModel.EditablePathElement.IsClose.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}"/>
-                    </StackPanel>
+
+                <!-- パスエレメントの編集パネル -->
+                <StackPanel Grid.Column="2" Orientation="Vertical" Spacing="8" HorizontalAlignment="Stretch" VerticalAlignment="Top" Visibility="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}" Margin="0,10,0,0">
+                    <Border HorizontalAlignment="Stretch"
+                            BorderThickness="0"
+                            Background="Purple"
+                            Padding="10,8">
+                        <TextBlock Text="{x:Bind ViewModel.EditablePathElement.DisplayName.Value, Mode=OneWay}" FontWeight="Bold" Foreground="White"/>
+                    </Border>
+                    <CheckBox IsChecked="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Mode=TwoWay}" Content="Relative" Visibility="{x:Bind ViewModel.EditablePathElement.IsClose.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}"/>
 
                     <!-- End Point-->
                     <StackPanel Orientation="Vertical" Visibility="{x:Bind ViewModel.EditablePathElement.IsClose.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="2">
-                            <TextBlock Text="End Point"/>
+                            <TextBlock Text="End Point" FontWeight="Bold"/>
                             <TextBlock Text="Rel:" Visibility="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}" Margin="10,0,0,0"/>
                             <TextBlock Text="{x:Bind ViewModel.EditablePathElement.EndPoint.Value, Mode=OneWay, Converter={w:StaticResource PointStringConverter}}" Visibility="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}"/>
                         </StackPanel>
@@ -530,7 +535,7 @@
                     <!-- Control-1 -->
                     <StackPanel Orientation="Vertical" Visibility="{x:Bind ViewModel.EditablePathElement.HasControl1.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="2">
-                            <TextBlock Text="Control-1"/>
+                            <TextBlock Text="Control-1" FontWeight="Bold"/>
                             <TextBlock Text="Rel:" Visibility="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}" Margin="10,0,0,0"/>
                             <TextBlock Text="{x:Bind ViewModel.EditablePathElement.Control1Point.Value, Mode=OneWay, Converter={w:StaticResource PointStringConverter}}" Visibility="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}"/>
                         </StackPanel>
@@ -571,7 +576,7 @@
                     <!-- Control-2 -->
                     <StackPanel Orientation="Vertical" Visibility="{x:Bind ViewModel.EditablePathElement.HasControl2.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
                         <StackPanel Orientation="Horizontal" Spacing="2">
-                            <TextBlock Text="Control-2"/>
+                            <TextBlock Text="Control-2" FontWeight="Bold"/>
                             <TextBlock Text="Rel:" Visibility="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}" Margin="10,0,0,0"/>
                             <TextBlock Text="{x:Bind ViewModel.EditablePathElement.Control2Point.Value, Mode=OneWay, Converter={w:StaticResource PointStringConverter}}" Visibility="{x:Bind ViewModel.EditablePathElement.IsRelative.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}"/>
                         </StackPanel>
@@ -614,7 +619,7 @@
                     <StackPanel Orientation="Vertical" Visibility="{x:Bind ViewModel.EditablePathElement.IsArc.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
                         <!-- Radius -->
                         <StackPanel Orientation="Horizontal" Spacing="2">
-                            <TextBlock Text="Radius"/>
+                            <TextBlock Text="Radius" FontWeight="Bold"/>
                         </StackPanel>
                         <Grid ColumnSpacing="2" RowSpacing="2">
                             <Grid.ColumnDefinitions>
@@ -651,7 +656,7 @@
 
                         <!-- Rotation Angle  -->
                         <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,8,0,0">
-                            <TextBlock Text="Rotation Angle"/>
+                            <TextBlock Text="Rotation Angle" FontWeight="Bold"/>
                         </StackPanel>
                         <Grid ColumnSpacing="2" RowSpacing="2">
                             <Grid.ColumnDefinitions>
@@ -682,7 +687,7 @@
                         <CheckBox IsChecked="{x:Bind ViewModel.EditablePathElement.SweepDirection.Value, Mode=TwoWay}" Content="Clockwize"/>
 
                     </StackPanel>
-                    <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="true"/>
+                    <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="true" HorizontalAlignment="Center" Style="{w:StaticResource AccentButtonStyle}"/>
                 </StackPanel>
             </Grid>
         </Grid>
