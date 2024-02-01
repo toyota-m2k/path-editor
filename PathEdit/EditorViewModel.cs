@@ -552,6 +552,7 @@ public class EditorViewModel {
         if (drawable == null) {
             return;
         }
+        SelectedElement.Value = null;
         EditingPathDrawable.Value = drawable.RemoveCommand(node.Current)/*.Clone()*/;   // DistinctUntilChangedを指定していないので同じオブジェクトをセットするだけで更新がかかるはず。
     }
 
