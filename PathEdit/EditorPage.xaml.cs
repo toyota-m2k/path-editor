@@ -7,6 +7,7 @@ using PathEdit.Graphics;
 using PathEdit.Parser;
 using System;
 using System.Linq;
+using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
@@ -321,12 +322,17 @@ public sealed partial class EditorPage : Page {
 
     private MouseDragger? DragInfo = null;
     private void OnMouseClick(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
-        if(!ViewModel.EditablePathElement.IsEditing.Value) {
-            return;
-        }
-        if(DragInfo != null) {
+        if (DragInfo != null) {
             DragInfo = null;
             return;
+        }
+        if (!ViewModel.EditablePathElement.IsEditing.Value) {
+            var drawable = ViewModel.EditingPathDrawable.Value;
+            var command = ViewModel.SelectedElement.Value?.Element?.Value?.Current;
+            if (drawable == null || command==null) {
+                return;
+            }
+            ViewModel.EditablePathElement.BeginEdit(drawable, command);
         }
         DragInfo = new MouseDragger(this, (FrameworkElement)sender, e);
     }
