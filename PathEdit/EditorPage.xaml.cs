@@ -113,7 +113,7 @@ public sealed partial class EditorPage : Page {
     //private async void OnPasteToSourceTextBox(object sender, Microsoft.UI.Xaml.Controls.TextControlPasteEventArgs e) {
     //    LoggerEx.debug("OnPaste");
 
-    //    e.Handled = Paste();
+    //    e.Handled = true;
     //}
 
     private void OnDragOver(object sender, Microsoft.UI.Xaml.DragEventArgs e) {
@@ -216,12 +216,6 @@ public sealed partial class EditorPage : Page {
 
     private void OnPreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e) {
         switch (e.Key) {
-            case Windows.System.VirtualKey.C:
-                if (IsCtrlKeyDown) {
-                    ViewModel.CopyCommand.Execute(null);
-                    e.Handled = true;
-                }
-                break;
             case Windows.System.VirtualKey.Escape:
                 if (ViewModel.EditingTransformType.Value != EditorViewModel.TransformType.None) {
                     ViewModel.EditingTransformType.Value = EditorViewModel.TransformType.None;
@@ -246,7 +240,16 @@ public sealed partial class EditorPage : Page {
     }
 
     private void OnKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e) {
+        if( e.OriginalSource is TextBox ) {
+            return;
+        }
         switch (e.Key) {
+            case Windows.System.VirtualKey.C:
+                if (IsCtrlKeyDown) {
+                    ViewModel.CopyCommand.Execute(null);
+                    e.Handled = true;
+                }
+                break;
             case Windows.System.VirtualKey.V:
                 if (IsCtrlKeyDown) {
                     e.Handled = Paste();

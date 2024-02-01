@@ -16,6 +16,7 @@
     PointerPressed="OnPageMouseClicked"
     PointerMoved="OnPageMouseMoved"
     PointerReleased="OnPageMouseReleased"
+    MinWidth="1280"
     >
     <Page.Resources>
         <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter"/>

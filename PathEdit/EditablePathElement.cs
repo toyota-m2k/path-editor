@@ -144,7 +144,6 @@ public class EditablePathElement {
         WorkingCommand.EndPoint = PointDependsOnRelativeFlag(endPoint, isRelative);
         if (WorkingCommand is LineHorzCommand lineHorz) {
             lineHorz.EndPoint = new Point(WorkingCommand.EndPoint.X, 0);
-            return lineHorz;
         }
         else if (WorkingCommand is LineVertCommand lineVert) {
             lineVert.EndPoint = new Point(0, WorkingCommand.EndPoint.Y);
