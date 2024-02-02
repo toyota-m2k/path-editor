@@ -6,11 +6,13 @@ using PathEdit.common;
 using PathEdit.Graphics;
 using PathEdit.Parser;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
+using static PathEdit.MultiSource;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -29,10 +31,17 @@ public sealed partial class EditorPage : Page {
         ViewModel.EditingPath.Subscribe(_ => {
             PathCanvas.Invalidate();
         });
+        ViewModel.OverlapSources.Subscribe(_ => {
+            PathCanvas.Invalidate();
+        });
 
         ViewModel.SelectedElement.Subscribe(_ => {
             PathCanvas.Invalidate();
         });
+        //ViewModel.MergeSources.Subscribe(_=> {
+        //    PathCanvas.Invalidate();
+        //});
+
         ViewModel.PathElementAppendedEvent.Subscribe(OnPathElementAppended);
     }
 
@@ -52,16 +61,35 @@ public sealed partial class EditorPage : Page {
         //}
         ViewModel.CanvasWidth.Value = sender.Width;
         ViewModel.CanvasHeight.Value = sender.Height;
-        using (var graphics = new Win2DGraphics(args.DrawingSession, sender.Width, sender.Height, Windows.UI.Color.FromArgb(0xff, 0, 0xff, 0x80))) {
+        using (var graphics = new Win2DGraphics(args.DrawingSession, sender.Width, sender.Height)) {
             try {
                 graphics.SetPathSize(ViewModel.PathWidth.Value, ViewModel.PathHeight.Value);
-                PathDrawable.Parse(ViewModel.EditingPath.Value).DrawTo(graphics);
 
-                if (ViewModel.SelectedElement.Value != null) {
-                    graphics.Color = Windows.UI.Color.FromArgb(0xff, 0, 0x00, 0xFF);
-                    ViewModel.SelectedElement.Value.Element.Value.DrawTo(graphics);
+                if (!ViewModel.MergeSources.Value) {
+                    graphics.Color = Windows.UI.Color.FromArgb(0xff, 0, 0xff, 0x80);
+                    PathDrawable.Parse(ViewModel.EditingPath.Value).DrawTo(graphics);
+
+                    if (ViewModel.SelectedElement.Value != null) {
+                        graphics.Color = Windows.UI.Color.FromArgb(0xff, 0, 0x00, 0xFF);
+                        ViewModel.SelectedElement.Value.Element.Value.DrawTo(graphics);
+                    }
+                    if (ViewModel.OverlapSources.Value) {
+                        var others = string.Join(" ", ViewModel.Sources.OtherPaths);
+                        if (!string.IsNullOrWhiteSpace(others)) {
+                            graphics.Color = Windows.UI.Color.FromArgb(0x20, 0x00, 0x00, 0x00);
+                            try {
+                                PathDrawable.Parse(others).DrawTo(graphics);
+                            }
+                            catch (Exception e) {
+                                LoggerEx.error(e);
+                            }
+                        }
+                    }
                 }
-
+                else {
+                    graphics.Color = Windows.UI.Color.FromArgb(0xff, 0xff, 0x80, 0x00);
+                    PathDrawable.Parse(ViewModel.EditingPath.Value).DrawTo(graphics);
+                }
                 drawGrid(args.DrawingSession, sender.Width, sender.Height);
             }
             catch (Exception e) {
@@ -89,7 +117,7 @@ public sealed partial class EditorPage : Page {
     #region Clipboard / Drag & Drop
 
     private bool Paste() {
-        if (ViewModel.EditablePathElement.IsEditing.Value) {
+        if (!ViewModel.IsSourcePathEditable.Value) {
             return false; // パス要素編集中はソース変更不可とする
         }
         var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
@@ -118,7 +146,7 @@ public sealed partial class EditorPage : Page {
 
     private void OnDragOver(object sender, Microsoft.UI.Xaml.DragEventArgs e) {
         LoggerEx.debug("OnDragOver");
-        if (ViewModel.EditablePathElement.IsEditing.Value) {
+        if (!ViewModel.IsSourcePathEditable.Value) {
             e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.None;
             return; // パス要素編集中はソース変更不可とする
         }
@@ -131,7 +159,7 @@ public sealed partial class EditorPage : Page {
 
     private void OnDragEnter(object sender, DragEventArgs e) {
         LoggerEx.debug("OnDragEnter");
-        if (ViewModel.EditablePathElement.IsEditing.Value) {
+        if (!ViewModel.IsSourcePathEditable.Value) {
             e.AcceptedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.None;
             return; // パス要素編集中はソース変更不可とする
         }
@@ -141,7 +169,7 @@ public sealed partial class EditorPage : Page {
 
     private void OnDrop(object sender, DragEventArgs e) {
         LoggerEx.debug("OnDrop");
-        if (ViewModel.EditablePathElement.IsEditing.Value) {
+        if (!ViewModel.IsSourcePathEditable.Value) {
             return; // パス要素編集中はソース変更不可とする
         }
 
@@ -217,7 +245,11 @@ public sealed partial class EditorPage : Page {
     private void OnPreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e) {
         switch (e.Key) {
             case Windows.System.VirtualKey.Escape:
-                if (ViewModel.EditingTransformType.Value != EditorViewModel.TransformType.None) {
+                if (ViewModel.MergeSources.Value) {
+                    ViewModel.MergeSources.Value = false;
+                    e.Handled = true;
+                }
+                else if (ViewModel.EditingTransformType.Value != EditorViewModel.TransformType.None) {
                     ViewModel.EditingTransformType.Value = EditorViewModel.TransformType.None;
                     e.Handled = true;
                 }
@@ -383,4 +415,9 @@ public sealed partial class EditorPage : Page {
         DragInfo = null;
     }
     #endregion
+
+    private void OnSourceListItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args) {
+        ViewModel.SetCurrentSourceCommand.Execute(args.InvokedItem);
+    }
+
 }
