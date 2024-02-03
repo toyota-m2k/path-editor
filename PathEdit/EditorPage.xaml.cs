@@ -333,8 +333,8 @@ public sealed partial class EditorPage : Page {
                     TargetOrgY = ViewModel.EditablePathElement.Control2PointAbsY.Value;
                     break;
                 case "ps":
-                    TargetOrgX = ViewModel.RotatePivotX.Value;
-                    TargetOrgY = ViewModel.RotatePivotY.Value;
+                    TargetOrgX = ViewModel.ScalePivotX.Value;
+                    TargetOrgY = ViewModel.ScalePivotY.Value;
                     break;
                 case "pr":
                     TargetOrgX = ViewModel.RotatePivotX.Value;
