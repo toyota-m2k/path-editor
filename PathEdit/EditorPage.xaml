@@ -104,7 +104,7 @@
                 <TextBox Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.SourcePath.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.IsSourcePathEditable.Value, Mode=OneWay}"/>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Result" FontWeight="Bold" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.EditingPath.Value, Mode=OneWay}" HorizontalAlignment="Stretch" IsReadOnly="True"/>
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.ResultPath.Value, Mode=OneWay}" HorizontalAlignment="Stretch" IsReadOnly="True"/>
                 <Button Grid.Row="2" Grid.Column="2" Command="{x:Bind ViewModel.CopyCommand}">
                     <PathIcon Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
                 </Button>
@@ -272,7 +272,7 @@
                         Visibility="{x:Bind ViewModel.Control1PointMarkVisibility.Value, Mode=OneWay}">
                         <Grid>
                             <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
-                            <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M10,7H14V17H12V9H10V7M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z"/>
+                            <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M 11 6.5H 13.1V 17H 11M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 12 4A 8,8,0,0,0,4,12 8,8,0,0,0,12,20 8,8,0,0,0,20,12 8,8,0,0,0,12,4Z"/>
                         </Grid>
                     </Viewbox>
                     <Viewbox

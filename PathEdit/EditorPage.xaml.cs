@@ -6,13 +6,10 @@ using PathEdit.common;
 using PathEdit.Graphics;
 using PathEdit.Parser;
 using System;
-using System.Diagnostics;
 using System.Linq;
-using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
-using static PathEdit.MultiSource;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -28,7 +25,7 @@ public sealed partial class EditorPage : Page {
         ViewModel.SourcePath.Subscribe(_ => {
             PathElementListView.SelectedIndex = -1;
         });
-        ViewModel.EditingPath.Subscribe(_ => {
+        ViewModel.ResultPath.Subscribe(_ => {
             PathCanvas.Invalidate();
         });
         ViewModel.OverlapSources.Subscribe(_ => {
@@ -38,9 +35,6 @@ public sealed partial class EditorPage : Page {
         ViewModel.SelectedElement.Subscribe(_ => {
             PathCanvas.Invalidate();
         });
-        //ViewModel.MergeSources.Subscribe(_=> {
-        //    PathCanvas.Invalidate();
-        //});
 
         ViewModel.PathElementAppendedEvent.Subscribe(OnPathElementAppended);
     }
@@ -67,7 +61,7 @@ public sealed partial class EditorPage : Page {
 
                 if (!ViewModel.MergeSources.Value) {
                     graphics.Color = Windows.UI.Color.FromArgb(0xff, 0, 0xff, 0x80);
-                    PathDrawable.Parse(ViewModel.EditingPath.Value).DrawTo(graphics);
+                    PathDrawable.Parse(ViewModel.ResultPath.Value).DrawTo(graphics);
 
                     if (ViewModel.SelectedElement.Value != null) {
                         graphics.Color = Windows.UI.Color.FromArgb(0xff, 0, 0x00, 0xFF);
@@ -88,7 +82,7 @@ public sealed partial class EditorPage : Page {
                 }
                 else {
                     graphics.Color = Windows.UI.Color.FromArgb(0xff, 0xff, 0x80, 0x00);
-                    PathDrawable.Parse(ViewModel.EditingPath.Value).DrawTo(graphics);
+                    PathDrawable.Parse(ViewModel.ResultPath.Value).DrawTo(graphics);
                 }
                 drawGrid(args.DrawingSession, sender.Width, sender.Height);
             }
@@ -315,6 +309,10 @@ public sealed partial class EditorPage : Page {
 
         private EditorViewModel ViewModel => Page.ViewModel;
 
+        public static bool IsTransform(FrameworkElement view) {
+            return (string)view.Tag == "ps" || (string)view.Tag == "pr";
+        }
+
         public MouseDragger(EditorPage page, FrameworkElement view, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e) {
             Target = (string)view.Tag;
             Page = page;
@@ -365,8 +363,8 @@ public sealed partial class EditorPage : Page {
                     ViewModel.EditablePathElement.Control2PointAbsY.Value = y;
                     break;
                 case "ps":
-                    ViewModel.RotatePivotX.Value = x;
-                    ViewModel.RotatePivotY.Value = y;
+                    ViewModel.ScalePivotX.Value = x;
+                    ViewModel.ScalePivotY.Value = y;
                     break;
                 case "pr":
                     ViewModel.RotatePivotX.Value = x;
@@ -385,7 +383,7 @@ public sealed partial class EditorPage : Page {
             DragInfo = null;
             return;
         }
-        if (!ViewModel.EditablePathElement.IsEditing.Value) {
+        if (!MouseDragger.IsTransform((FrameworkElement)sender) && !ViewModel.EditablePathElement.IsEditing.Value) {
             var drawable = ViewModel.EditingPathDrawable.Value;
             var command = ViewModel.SelectedElement.Value?.Element?.Value?.Current;
             if (drawable == null || command==null) {

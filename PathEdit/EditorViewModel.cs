@@ -44,6 +44,7 @@ public class EditorViewModel {
      * 編集中のパス文字列（表示用 ... EditingPathDrawableからComposeして生成する）
      */
     public ReadOnlyReactiveProperty<string> EditingPath { get; }
+    public ReadOnlyReactiveProperty<string> ResultPath { get; }
 
     /**
      * パスの幅と高さ： 通常よく使っているのは 24x24 だが変更できるようにしておく。
@@ -226,9 +227,9 @@ public class EditorViewModel {
         if (EditablePathElement.IsEditing.Value) {
             return false;
         }
-        //if (MergeSources.Value) {
-        //    return false;
-        //}
+        if (MergeSources.Value) {
+            return false;
+        }
         return true;
     }
 
@@ -243,12 +244,18 @@ public class EditorViewModel {
         Sources.UpdateCurrentPath(path);
     }
     private void Undo() {
+        if(Sources.History.CanUndo.Value) {
+            ResetAllStates();
+        }
         if (!CanUndoRedo()) {
             return;
         }
         Sources.History.Undo(this);
     }
     private void Redo() {
+        if (Sources.History.CanRedo.Value) {
+            ResetAllStates();
+        }
         if (!CanUndoRedo()) {
             return;
         }
@@ -265,14 +272,17 @@ public class EditorViewModel {
                 MergeSources.Value = false;
             }
         });
-        EditingPath = Observable.CombineLatest(EditingPathDrawable, MergeSources, (d,m) => {
-            if (m) {
-                ResetAllStates();
-                return Sources.MergedPath;
+        EditingPath = EditingPathDrawable.Select(d => {
+            return d?.Compose() ?? "";
+        }).ToReadOnlyReactiveProperty<string>();
+
+        ResultPath = Observable.CombineLatest(EditingPath, MergeSources, (d,m) => {
+            if(m) {
+                // マージモードに入ったときは、強制的にSourcesのパスを更新しUndoバッファに積む。
+                // 通常この動作は、ResetAllStates()で行うが、MergeSourcesもリセットされてしまうので、直接Sourcesを更新する。
+                Sources.UpdateCurrentPath(d);
             }
-            else {
-                return d?.Compose() ?? "";
-            }
+            return m ? Sources.MergedPath : d;
         }).ToReadOnlyReactiveProperty<string>();
 
         EditingPathDrawable.Subscribe(d => {
@@ -346,7 +356,10 @@ public class EditorViewModel {
 
         var changeEditingType = (TransformType type, bool on) => {
             if(on) {
-                EditingTransformType.Value = type;
+                if(EditingTransformType.Value != type) {
+                    EditingTransformType.Value = TransformType.None;    // Undoバッファに積むために一度Noneにしておく
+                    EditingTransformType.Value = type;
+                }
                 return true;
             } else if(EditingTransformType.Value == type) {
                 EditingTransformType.Value = TransformType.None;
@@ -645,7 +658,7 @@ public class EditorViewModel {
      */
     private void OnCopy() {
         try {
-            var path = EditingPath.Value;
+            var path = ResultPath.Value;
             if (string.IsNullOrWhiteSpace(path)) {
                 return;
             }
@@ -748,7 +761,7 @@ public class EditorViewModel {
     }
 
     public void ResetAllStates() {
-        //MergeSources.Value = false;
+        MergeSources.Value = false;
         EditingTransformType.Value = EditorViewModel.TransformType.None;
         PathCommandDialogViewModel.IsActive.Value = false;
         EditablePathElement.EndEdit();
