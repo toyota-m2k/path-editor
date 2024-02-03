@@ -58,6 +58,10 @@ public class ArcCommand : PathCommand {
         if(Radius.Width != Radius.Height) {
             RotationAngle = (RotationAngle + angle) % 360;
         }
+        if(matrix.M11 * matrix.M22 < 0) { 
+            // ミラー変形の場合は、SweepDirectionを反転する
+            SweepDirection = !SweepDirection;
+        }
     }
 
     public override PathCommand Clone() {
