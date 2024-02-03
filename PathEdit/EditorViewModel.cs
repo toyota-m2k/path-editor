@@ -349,9 +349,7 @@ public class EditorViewModel {
             EditingMirror.Value = m == TransformType.Mirror;
             EditingRound.Value = m == TransformType.Round;
 
-            if (m != TransformType.None) {
-                WorkingPath.Value = EditingPath.Value;
-            }
+            WorkingPath.Value = EditingPath.Value;
         });
 
         var changeEditingType = (TransformType type, bool on) => {

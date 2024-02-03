@@ -367,7 +367,7 @@
                                     <p:RepeatButton Grid.Row="4" Grid.Column="2" Command="{x:Bind ViewModel.ScaleStepMinusY}" Padding="0" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}">
                                         <PathIcon Width="24" Height="24" Data="M19,13H5V11H19V13Z"/>
                                     </p:RepeatButton>
-                                    <Slider Grid.Row="4" Grid.Column="3" Minimum="0" Maximum="200" Value="{x:Bind ViewModel.ScaleX.Value, Mode=TwoWay}" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}"/>
+                                    <Slider Grid.Row="4" Grid.Column="3" Minimum="0" Maximum="200" Value="{x:Bind ViewModel.ScaleY.Value, Mode=TwoWay}" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}"/>
                                     <p:RepeatButton Grid.Row="4" Grid.Column="4" Command="{x:Bind ViewModel.ScaleStepPlusY}" Padding="0" Visibility="{x:Bind ViewModel.KeepAspect.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}">
                                         <PathIcon  Width="24" Height="24" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                                     </p:RepeatButton>
