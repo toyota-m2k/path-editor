@@ -272,9 +272,9 @@ public sealed partial class EditorPage : Page {
     }
 
     private void OnKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e) {
-        if( e.OriginalSource is TextBox ) {
-            return;
-        }
+        //if( e.OriginalSource is TextBox ) {
+        //    return;
+        //}
         switch (e.Key) {
             case Windows.System.VirtualKey.C:
                 if (IsCtrlKeyDown) {

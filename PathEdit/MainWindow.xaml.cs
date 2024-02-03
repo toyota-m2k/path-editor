@@ -11,7 +11,7 @@ namespace PathEdit {
 
         public MainWindow() {
             this.InitializeComponent();
-
+            this.Title = "SVG Path Editor";
         }
 
     }
