@@ -673,10 +673,13 @@ public class EditorViewModel {
 
     private void OnDeleteElement(PathElementViewModel model) {
         LoggerEx.debug($"OnDeleteElement: {model.CommandName.Value}");
-        var node = model.Element.Value;
-        if (node.Prev == null) {
-            return;
+        if(PathElementList.Count==1) {
+            return; // 最後の要素は削除できない
         }
+        var node = model.Element.Value;
+        //if (node.Prev == null) {
+        //    return;
+        //}
         var drawable = EditingPathDrawable.Value;
         if (drawable == null) {
             return;

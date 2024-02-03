@@ -160,7 +160,7 @@ public class PathElementViewModel {
     public ReadOnlyReactiveProperty<bool> SweepDirection { get; }
 
     public ReadOnlyReactiveProperty<bool> CanEdit { get; }
-    public ReadOnlyReactiveProperty<bool> CanDelete { get; }
+    //public ReadOnlyReactiveProperty<bool> CanDelete { get; }
 
     public ReactiveCommand<PathElementViewModel> EditCommand { get; }
     public ReactiveCommand<PathElementViewModel> InsertCommand { get; }
@@ -201,7 +201,7 @@ public class PathElementViewModel {
         SweepDirection = Element.Select(element => element.SweepDirection).ToReadOnlyReactiveProperty();
 
         CanEdit = Selected.Select(selected => this == selected).ToReadOnlyReactiveProperty();
-        CanDelete = Selected.Select(selected => selected?.Element.Value.Prev != null).ToReadOnlyReactiveProperty();
+        //CanDelete = Selected.Select(selected => selected?.Element.Value.Prev != null).ToReadOnlyReactiveProperty();
         EditCommand = editCommand;
         InsertCommand = insertCommand;
         DeleteCommand = deleteCommand;
