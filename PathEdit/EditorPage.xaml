@@ -110,6 +110,8 @@
                 </Button>
 
             </Grid>
+            
+            <!-- 編集エリア（パス要素リスト＋パス表示＋操作（トランスフォーム操作、パスエレメント編集）パネル） -->
             <Grid Grid.Row="1" Grid.ColumnSpacing="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="434"/>
@@ -117,6 +119,7 @@
                     <ColumnDefinition Width="384"/>
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
+                    <!-- パス要素リストのテンプレート -->
                     <w:DataTemplate x:Key="ListViewItemTemplate" x:DataType="local:PathElementViewModel">
                         <Grid Width="400" MinHeight="40" VerticalAlignment="Stretch" BorderThickness="0,0,0,1" BorderBrush="CornflowerBlue">
                             <Grid ColumnSpacing="6" HorizontalAlignment="Stretch" VerticalAlignment="Center">
@@ -290,9 +293,10 @@
 
                 </Canvas>
 
-                <!-- トランスフォーム操作エリア -->
+                <!-- 操作パネル -->
                 <Grid Grid.Column="2"  Margin="0,10,0,0" Visibility="{x:Bind ViewModel.MergeSources.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}">
 
+                    <!-- トランスフォーム操作エリア -->
                     <StackPanel Orientation="Vertical" Spacing="15" HorizontalAlignment="Stretch" VerticalAlignment="Top" Visibility="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Converter={w:StaticResource NegBoolVisibilityConverter}, Mode=OneWay}">
                         <!-- Scaling -->
                         <Expander
@@ -663,13 +667,13 @@
                             </Grid>
                         </StackPanel>
 
-
                         <!-- Arc -->
                         <StackPanel Orientation="Vertical" Visibility="{x:Bind ViewModel.EditablePathElement.IsArc.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}">
                             <!-- Radius -->
                             <StackPanel Orientation="Horizontal" Spacing="2">
                                 <TextBlock Text="Radius" FontWeight="Bold"/>
                             </StackPanel>
+                            <CheckBox Content="Perfect Circle" IsChecked="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=TwoWay}"/>
                             <Grid ColumnSpacing="2" RowSpacing="2">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -682,7 +686,9 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="W: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
+                                <!-- Radius X -->
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="R: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Visibility="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=OneWay, Converter={w:StaticResource BoolVisibilityConverter}}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="X: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Visibility="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}"/>
                                 <NumberBox Grid.Row="0" Grid.Column="1" Value="{x:Bind ViewModel.EditablePathElement.RadiusX.Value, Mode=TwoWay}" Width="64"/>
                                 <p:RepeatButton Grid.Row="0" Grid.Column="2" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="rx-" Padding="0">
                                     <PathIcon Width="24" Height="24" Data="M19,13H5V11H19V13Z"/>
@@ -692,13 +698,14 @@
                                     <PathIcon  Width="24" Height="24" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                                 </p:RepeatButton>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Y: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold"/>
-                                <NumberBox Grid.Row="1" Grid.Column="1" Value="{x:Bind ViewModel.EditablePathElement.RadiusY.Value, Mode=TwoWay}" Width="64"/>
-                                <p:RepeatButton Grid.Row="1" Grid.Column="2" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ry-" Padding="0">
+                                <!-- Radius Y -->
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Y: " HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="Bold" Visibility="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}"/>
+                                <NumberBox Grid.Row="1" Grid.Column="1" Value="{x:Bind ViewModel.EditablePathElement.RadiusY.Value, Mode=TwoWay}" Width="64" Visibility="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}"/>
+                                <p:RepeatButton Grid.Row="1" Grid.Column="2" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ry-" Padding="0" Visibility="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}">
                                     <PathIcon Width="24" Height="24" Data="M19,13H5V11H19V13Z"/>
                                 </p:RepeatButton>
-                                <Slider Grid.Row="1" Grid.Column="3" Minimum="0" Maximum="24" Value="{x:Bind ViewModel.EditablePathElement.RadiusY.Value, Mode=TwoWay}"/>
-                                <p:RepeatButton Grid.Row="1" Grid.Column="4" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ry+" Padding="0">
+                                <Slider Grid.Row="1" Grid.Column="3" Minimum="0" Maximum="24" Value="{x:Bind ViewModel.EditablePathElement.RadiusY.Value, Mode=TwoWay}" Visibility="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}"/>
+                                <p:RepeatButton Grid.Row="1" Grid.Column="4" Command="{x:Bind ViewModel.EditablePathElement.AdjustPointCommand}" CommandParameter="ry+" Padding="0" Visibility="{x:Bind ViewModel.EditablePathElement.IsPerfectCircle.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}">
                                     <PathIcon  Width="24" Height="24" Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
                                 </p:RepeatButton>
                             </Grid>
