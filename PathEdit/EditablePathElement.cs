@@ -35,6 +35,7 @@ public class EditablePathElement {
         RotationAngle.Value = element.RotationAngle;
         IsLargeArc.Value = element.IsLargeArc;
         SweepDirection.Value = element.SweepDirection;
+        IsPerfectCircle.Value = element.Radius.Width == element.Radius.Height;
 
         TargetElement.Value = element;
         ElementIndex = index;
@@ -106,6 +107,7 @@ public class EditablePathElement {
     public ReactiveProperty<double> RotationAngle { get; } = new();
     public ReactiveProperty<bool> IsLargeArc { get; } = new();
     public ReactiveProperty<bool> SweepDirection { get; } = new();
+    public ReactiveProperty<bool> IsPerfectCircle { get; } = new();
 
     public ReadOnlyReactiveProperty<PathCommand?> GeneratedPathCommand { get; }
     public ReactiveCommand<string> AdjustPointCommand { get; } = new();
@@ -130,7 +132,7 @@ public class EditablePathElement {
     //    }
     //}
 
-    private PathCommand? UpdatePathElement(bool isRelative, Point endPoint, Point control1, Point control2, double radiusX, double radiusY, double rotationAngle, bool isLargeArc, bool sweepDirection) {
+    private PathCommand? UpdatePathElement(bool isRelative, Point endPoint, Point control1, Point control2, double radiusX, double radiusY, double rotationAngle, bool isLargeArc, bool sweepDirection, bool isPerfectCircle) {
         var current = TargetElement.Value?.Current;
         if (current == null) {
             return null;
@@ -159,7 +161,7 @@ public class EditablePathElement {
             smoothCubic.Control2 = PointDependsOnRelativeFlag(control2, isRelative);
         }
         else if (WorkingCommand is ArcCommand arc) {
-            arc.Radius = new Size(radiusX, radiusY);
+            arc.Radius = isPerfectCircle ? new Size(radiusX, radiusX) : new Size(radiusX, radiusY);
             arc.RotationAngle = rotationAngle;
             arc.IsLargeArc = isLargeArc;
             arc.SweepDirection = sweepDirection;
@@ -203,6 +205,7 @@ public class EditablePathElement {
                        RotationAngle,
                        IsLargeArc,
                        SweepDirection,
+                       IsPerfectCircle,
                        UpdatePathElement).ToReadOnlyReactiveProperty<PathCommand?>(null, ReactivePropertyMode.None);
 
         AdjustPointCommand.Subscribe(OnAdjustPointCommand);

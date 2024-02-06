@@ -32,11 +32,10 @@ internal class Win2DGraphics : IGraphics {
         return this;
     }
 
-    public Win2DGraphics(CanvasDrawingSession drawingSession, double width, double height, Color color) {
+    public Win2DGraphics(CanvasDrawingSession drawingSession, double width, double height) {
         DrawingSession = drawingSession;
         Width = width;
         Height = height;
-        Color = color;
         
         //pb.BeginFigure(0, 0);
         //pb.EndFigure(CanvasFigureLoop.Open);

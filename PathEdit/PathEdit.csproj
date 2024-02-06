@@ -13,6 +13,11 @@
     <Authors>io.github.toyota32k</Authors>
     <Copyright>Copyright (C) toyota.m2k</Copyright>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets/program-icon.ico</ApplicationIcon>
+	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+	<Version></Version>
+	<AssemblyVersion>1.0.0.0</AssemblyVersion>
+	<FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="EditorPage.xaml" />
@@ -24,7 +29,6 @@
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
 
