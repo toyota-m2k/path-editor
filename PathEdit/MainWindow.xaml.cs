@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using PathEdit.common;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -16,7 +17,7 @@ namespace PathEdit {
 
         public MainWindow() {
             string AppName;
-            Version AppVersion;
+            Version? AppVersion = null;
             this.InitializeComponent();
             if (RuntimeHelper.IsMSIX) {
                 var package = Windows.ApplicationModel.Package.Current;
@@ -25,10 +26,19 @@ namespace PathEdit {
                 AppVersion = new(v.Major, v.Minor, v.Build, v.Revision);
             }
             else {
-                var assemblyName = Assembly.GetExecutingAssembly().GetName();
-                AppName = assemblyName.Name ?? "who am i?";
-                AppVersion = assemblyName.Version ?? new Version(0, 0, 0, 0);
+                AppName = "SVG Path Editor (u)";
             }
+            var assembly = Assembly.GetExecutingAssembly();
+            var assemblyName = assembly.GetName();
+            var assemblyVersion = assemblyName.Version ?? new Version(0, 0, 0, 0);
+            if (AppVersion == null) {
+                AppVersion = assemblyVersion;
+            } else {
+                // プロジェクトプロパティ(csproj)の「アセンブリバージョン」と、Package.manifestの <Identity ... Version> の値は、
+                // 常に同じ値に設定しておくこと。
+                Debug.Assert(AppVersion == assemblyVersion);
+            }
+
             var title = $"{AppName} v{AppVersion}";
 
 #if DEBUG

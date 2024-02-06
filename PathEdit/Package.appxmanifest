@@ -9,14 +9,14 @@
 
   <Identity
     Name="5675c537-18c0-4f40-b90b-03775e6264e2"
-    Publisher="CN=mitsu"
-    Version="1.0.0.0" />
+    Publisher="CN=mitsu" Version="1.0.0.0"
+     />
 
   <mp:PhoneIdentity PhoneProductId="5675c537-18c0-4f40-b90b-03775e6264e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>PathEdit</DisplayName>
-    <PublisherDisplayName>mitsu</PublisherDisplayName>
+    <DisplayName>SVG Path Editor</DisplayName>
+    <PublisherDisplayName>io.github.toyota-m2k</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -34,8 +34,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="PathEdit"
-        Description="PathEdit"
+        DisplayName="SVG Path Editor"
+        Description="Visual Editor for SVG Path String."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
