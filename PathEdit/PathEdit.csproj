@@ -14,6 +14,7 @@
     <Copyright>Copyright (C) toyota.m2k</Copyright>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/program-icon.ico</ApplicationIcon>
+	  <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="EditorPage.xaml" />
