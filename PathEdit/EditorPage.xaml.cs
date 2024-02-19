@@ -121,7 +121,11 @@ public sealed partial class EditorPage : Page {
                 //var text = await dataPackageView.GetTextAsync();
                 var path = ViewModel.CheckAndExtractPath(text);
                 if (!string.IsNullOrWhiteSpace(path)) {
-                    ViewModel.SourcePath.Value = path;
+                    if(ViewModel.SourcePath.Value == "M 0 0") {
+                        ViewModel.SourcePath.Value = path;
+                    } else {
+                        ViewModel.AddSourceCommand.Execute(path);
+                    }
                     return true;
                 }
             }

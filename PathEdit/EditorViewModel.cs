@@ -18,7 +18,7 @@ public class EditorViewModel {
     public ReactiveProperty<bool> MergeSources { get; } = new(false);
     public ReactiveProperty<bool> OverlapSources { get; } = new(false);
 
-    public ReactiveCommand AddSourceCommand { get; } = new();
+    public ReactiveCommand<string> AddSourceCommand { get; } = new();
     public ReactiveCommand RemoveSourceCommand { get; } = new();
     public ReactiveCommand<object> SetCurrentSourceCommand { get; } = new();
     public ReadOnlyReactiveProperty<bool> IsSourcePathEditable { get; }
@@ -310,9 +310,9 @@ public class EditorViewModel {
             }
         });
 
-        AddSourceCommand.Subscribe(() => {
+        AddSourceCommand.Subscribe((newPath) => {
             ResetAllStates();
-            Sources.AddSource(-1, "M 0 0");
+            Sources.AddSource(-1, string.IsNullOrWhiteSpace(newPath) ? "M 0 0" : newPath);
             var current = Sources.Current;
             SourcePath.Value = current.OriginalPath;
             UpdatePathDrawable(current.EditingPath);
