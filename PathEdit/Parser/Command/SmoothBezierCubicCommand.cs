@@ -47,10 +47,9 @@ public class SmoothBezierCubicCommand : SmoothBezierCommand {
     public override string DispalyName => "Smooth Bezier Cubic";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
-        if (!(prevCommand is SmoothBezierCubicCommand)) {
+        if (prevCommand?.CommandName != CommandName) {
             sb.Append(CommandName);
         }
-        sb.Append(IsRelative?"s":"S");
         sb.Append(" ");
         sb.Append(Control2.X);
         sb.Append(" ");

@@ -27,7 +27,7 @@ public class MoveCommand : PathCommand {
     public override string DispalyName => "Move";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
-        if (!(prevCommand is MoveCommand)) {
+        if (prevCommand?.CommandName != CommandName) {
             sb.Append(CommandName);
         }
         sb.Append(" ");

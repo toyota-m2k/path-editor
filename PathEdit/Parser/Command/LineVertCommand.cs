@@ -4,7 +4,7 @@ using System.Text;
 using System.Windows;
 
 namespace PathEdit.Parser.Command;
-public class LineVertCommand : PathCommand {
+public class LineVertCommand : LineHVCommand {
     public LineVertCommand(bool isRelative, double y)
         : base(isRelative, new Point(0, y)) {
         }
@@ -22,7 +22,7 @@ public class LineVertCommand : PathCommand {
         }
     }
 
-    public LineCommand ToLineCommand(PathCommand? prevCommand) {
+    public override LineCommand ToLineCommand(PathCommand? prevCommand) {
         return new LineCommand(IsRelative, CorrectedEndPoint(prevCommand));
     }
 
@@ -37,7 +37,7 @@ public class LineVertCommand : PathCommand {
     public override string DispalyName => "Line Vertical";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
-        if (!(prevCommand is LineVertCommand)) {
+        if (prevCommand?.CommandName != CommandName) {
             sb.Append(CommandName);
         } 
         sb.Append(" ");

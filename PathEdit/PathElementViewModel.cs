@@ -115,6 +115,10 @@ public class PathElement {
         
     }
 
+    public PathCommand? ToLineCommand() {
+        return (Current as LineHVCommand)?.ToLineCommand(Prev);
+    }
+
     public void Dump() {
         var sb = new StringBuilder();
         sb.Append($"{CommandName} S={StartPoint} E{EndPointAbs}");

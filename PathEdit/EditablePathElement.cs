@@ -84,6 +84,7 @@ public class EditablePathElement {
     public ReadOnlyReactiveProperty<bool> IsControl1Editable { get; }   // SmoothBezierCommandの場合は、Control1は自動計算されるので編集不可
     public ReadOnlyReactiveProperty<bool> IsEndPointXEditable { get; }  // V commandの場合は、X座標は自動計算されるので編集不可
     public ReadOnlyReactiveProperty<bool> IsEndPointYEditable { get; }  // H commandの場合は、Y座標は自動計算されるので編集不可
+    public ReadOnlyReactiveProperty<bool> IsHV { get; }                 // H or V command なら true
 
     public ReactiveProperty<double> EndPointAbsX { get; } = new();
     public ReactiveProperty<double> EndPointAbsY { get; } = new();
@@ -185,6 +186,7 @@ public class EditablePathElement {
         IsControl1Editable = TargetElement.Select(element => (element?.HasControl1 ?? false) && !(element?.Current is SmoothBezierCommand)).ToReadOnlyReactiveProperty();
         IsEndPointXEditable = TargetElement.Select(element => !(element?.Current is LineVertCommand)).ToReadOnlyReactiveProperty();
         IsEndPointYEditable = TargetElement.Select(element => !(element?.Current is LineHorzCommand)).ToReadOnlyReactiveProperty();
+        IsHV = TargetElement.Select(element => element?.Current is LineHorzCommand || element?.Current is LineVertCommand).ToReadOnlyReactiveProperty();
 
         EndPointAbs = Observable.CombineLatest(EndPointAbsX, EndPointAbsY, (x, y) => new Point(x, y)).ToReadOnlyReactiveProperty();
         EndPoint = Observable.CombineLatest(EndPointAbs, IsRelative, PointDependsOnRelativeFlag).ToReadOnlyReactiveProperty();

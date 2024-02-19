@@ -743,7 +743,10 @@
                             <CheckBox IsChecked="{x:Bind ViewModel.EditablePathElement.SweepDirection.Value, Mode=TwoWay}" Content="Clockwize"/>
 
                         </StackPanel>
-                        <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="true" HorizontalAlignment="Center" Style="{w:StaticResource AccentButtonStyle}"/>
+                        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                            <Button Content="Alter to L" Command="{x:Bind ViewModel.AlterToLCommand}" Visibility="{x:Bind ViewModel.EditablePathElement.IsHV.Value, Converter={w:StaticResource BoolVisibilityConverter}, Mode=OneWay}"/>
+                            <Button Content="Done" Command="{x:Bind ViewModel.EndEditElementCommand}" CommandParameter="true" Style="{w:StaticResource AccentButtonStyle}"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </Grid>

@@ -23,7 +23,7 @@ public class LineCommand : PathCommand {
     public override string DispalyName => "Line";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
-        if (!(prevCommand is LineCommand)) {
+        if (prevCommand?.CommandName != CommandName) {
             sb.Append(CommandName);
         }
         sb.Append(" ");

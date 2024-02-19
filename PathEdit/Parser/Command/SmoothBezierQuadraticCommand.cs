@@ -25,7 +25,7 @@ public class SmoothBezierQuadraticCommand : SmoothBezierCommand{
     public override string DispalyName => "Smooth Bezier Quadratic";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
-        if (!(prevCommand is SmoothBezierQuadraticCommand)) {
+        if (prevCommand?.CommandName != CommandName) {
             sb.Append(CommandName);
         }
         sb.Append(" ");

@@ -38,7 +38,7 @@ public class ArcCommand : PathCommand {
     public override string DispalyName => "Arc";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prev) {
-        if (!(prev is ArcCommand)) {
+        if (prev?.CommandName != CommandName) {
             sb.Append(CommandName);
         }
         sb.Append(" ");

@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using Windows.Globalization.NumberFormatting;
 using System.Collections.Generic;
+using PathEdit.Parser.Command;
 
 namespace PathEdit;
 
@@ -66,6 +67,7 @@ public class EditorViewModel {
     public ReactiveCommand<PathElementViewModel> InsertCommand { get; } = new();
     public ReactiveCommand<PathElementViewModel> DeleteCommand { get; } = new();
     public ReactiveCommand<string> EndEditElementCommand { get; } = new();
+    public ReactiveCommand AlterToLCommand { get; } = new();
     public ReactiveCommand CopyCommand { get; } = new();
 
     #endregion
@@ -455,6 +457,7 @@ public class EditorViewModel {
         InsertCommand.Subscribe(OnInsertElement);
         DeleteCommand.Subscribe(OnDeleteElement);
         EndEditElementCommand.Subscribe(OnEndEditElement);
+        AlterToLCommand.Subscribe(OnAlterToL);
 
         #endregion
 
@@ -702,6 +705,20 @@ public class EditorViewModel {
             // cancel
         }
         EditablePathElement.EndEdit();
+    }
+
+    private void OnAlterToL() {
+        var drawable = EditingPathDrawable.Value;
+        if(drawable == null) {
+            return;
+        }
+        var cmd = EditablePathElement.TargetElement.Value?.ToLineCommand();
+        if(cmd == null) {
+            return;
+        }
+        EditingPathDrawable.Value = drawable.ReplaceCommand(EditablePathElement.ElementIndex, cmd);
+        EditablePathElement.EndEdit();
+        EditablePathElement.BeginEdit(drawable, cmd);
     }
 
     private async void OnInsertElement(PathElementViewModel model) {

@@ -47,7 +47,7 @@ public class BezierQuadraticCommand : BezierCommand {
     public override string DispalyName => "Bezier Quadratic";
 
     public override void ComposeTo(StringBuilder sb, PathCommand? prevCommand) {
-        if (!(prevCommand is BezierQuadraticCommand)) {
+        if (prevCommand?.CommandName != CommandName) {
             sb.Append(CommandName);
         }
         sb.Append(" ");
