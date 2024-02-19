@@ -205,7 +205,6 @@
                     ItemsSource="{x:Bind ViewModel.PathElementList}"
                     BorderThickness="3"
                     BorderBrush="BlueViolet"
-                    IsEnabled="{x:Bind ViewModel.EditablePathElement.IsEditing.Value, Mode=OneWay, Converter={w:StaticResource NegBoolConverter}}"
                     Visibility="{x:Bind ViewModel.MergeSources.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}"
                     ItemClick="OnPathElementListItemClicked"
                     SelectionChanged="OnPathElementListSelectionChanged"

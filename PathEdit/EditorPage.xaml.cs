@@ -32,7 +32,15 @@ public sealed partial class EditorPage : Page {
             PathCanvas.Invalidate();
         });
 
-        ViewModel.SelectedElement.Subscribe(_ => {
+        ViewModel.SelectedElement.Subscribe(item => {
+            if (ViewModel.EditablePathElement.IsEditing.Value) {
+                ViewModel.EditablePathElement.EndEdit();
+                var drawable = ViewModel.EditingPathDrawable.Value;
+                var element = item?.Element?.Value?.Current;
+                if (drawable != null && element != null) { 
+                    ViewModel.EditablePathElement.BeginEdit(drawable, element);
+                }
+            }
             PathCanvas.Invalidate();
         });
 
