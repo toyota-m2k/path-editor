@@ -34,6 +34,11 @@ public class SmoothBezierQuadraticCommand : SmoothBezierCommand{
         sb.Append(EndPoint.Y);
     }
 
+    public override void ResolveEndPoint(PathCommand? prevCommand) {
+        base.ResolveEndPoint(prevCommand);
+        LastResolvedControl = GetFirstControlPoint(prevCommand);
+    }
+
     public static IEnumerable<SmoothBezierQuadraticCommand> Parse(string command, List<double> paramList) {
         var lc = command.ToUpper();
         if(lc!="T") {

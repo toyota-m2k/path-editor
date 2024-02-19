@@ -534,6 +534,7 @@ public class EditorViewModel {
     public void UpdatePathDrawable(string path) {
         try {
             var drawable = PathDrawable.Parse(path);
+            drawable.ResolveEndPoint();
             EditingPathDrawable.Value = drawable;
             WorkingPath.Value = path;
         }

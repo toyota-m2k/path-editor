@@ -60,6 +60,11 @@ public class BezierQuadraticCommand : BezierCommand {
         sb.Append(EndPoint.Y);
     }
 
+    public override void ResolveEndPoint(PathCommand? prevCommand) {
+        base.ResolveEndPoint(prevCommand);
+        LastResolvedControl = ResolveRelativePoint(Control, prevCommand?.LastResolvedPoint);
+    }
+
     public static IEnumerable<BezierQuadraticCommand> Parse(string command, List<double> paramList) {
         var lc = command.ToUpper();
         if(lc!="Q") {

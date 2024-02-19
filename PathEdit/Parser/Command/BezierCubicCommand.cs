@@ -70,6 +70,12 @@ public class BezierCubicCommand : BezierCommand {
         sb.Append(EndPoint.Y);
     }
 
+    public override void ResolveEndPoint(PathCommand? prevCommand) {
+        base.ResolveEndPoint(prevCommand);
+        LastResolvedControl = ResolveRelativePoint(Control2, prevCommand?.LastResolvedPoint);
+    }
+
+
     public static IEnumerable<BezierCubicCommand> Parse(string command, List<double> paramList) {
         var lc = command.ToUpper();
         if(lc!="C") {

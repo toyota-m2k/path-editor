@@ -47,7 +47,7 @@ public abstract class PathCommand {
         EndPoint = ResolveRelativePoint(EndPoint, prevCommand?.LastResolvedPoint);
     }
 
-    public void ResolveEndPoint(PathCommand? prevCommand) {
+    public virtual void ResolveEndPoint(PathCommand? prevCommand) {
         LastResolvedPoint = ResolveRelativePoint(CorrectedEndPoint(prevCommand), prevCommand?.LastResolvedPoint);
     }
 

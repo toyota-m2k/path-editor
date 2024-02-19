@@ -60,6 +60,11 @@ public class SmoothBezierCubicCommand : SmoothBezierCommand {
         sb.Append(EndPoint.Y);
     }
 
+    public override void ResolveEndPoint(PathCommand? prevCommand) {
+        base.ResolveEndPoint(prevCommand);
+        LastResolvedControl = ResolveRelativePoint(Control2, prevCommand?.LastResolvedPoint);
+    }
+
 
     public static IEnumerable<SmoothBezierCubicCommand> Parse(string command, List<double> paramList) {
         var lc = command.ToUpper();
