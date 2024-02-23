@@ -220,8 +220,24 @@
                 </ListView>
                 
                 <!-- パス表示エリア -->
-                <Canvas Grid.Column="1" Width="420" Height="420" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <win2dcanvas:CanvasControl 
+                <StackPanel Grid.Column="1" Width="420" Orientation="Vertical">
+                    <Grid Width="400" HorizontalAlignment="Center" Margin="0,10" ColumnSpacing="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" IsReadOnly="True" Text="{x:Bind ViewModel.SelectedElement.Value.Element.Value.ElementPath, Mode=OneWay}" HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="1" Command="{x:Bind ViewModel.ElementCopyCommand}">
+                            <PathIcon Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/>
+                        </Button>
+                        <Button Grid.Column="2" Command="{x:Bind ViewModel.ElementAppendCopyCommand}">
+                            <PathIcon Data="M 19 21H 8V 7H 19M 19 5H 8A 2,2,0,0,0,6,7V 21A 2,2,0,0,0,8,23H 19A 2,2,0,0,0,21,21V 7A 2,2,0,0,0,19,5M 16 1H 4A 2,2,0,0,0,2,3V 17H 4V 3H 16V 1Z M 18.5 15H 14.5V 18H 12.5V 15H 9.5V 13H 12.5V 10H 14.5V 13H 17.5V 15Z"/>
+                        </Button>
+
+                    </Grid>
+                    <Canvas Width="420" Height="420" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <win2dcanvas:CanvasControl 
                         x:Name="PathCanvas" 
                         Canvas.Left="10"
                         Canvas.Top="10"
@@ -229,68 +245,69 @@
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         Draw="CanvasControl_Draw"/>
-                    <w:Ellipse 
+                        <w:Ellipse 
                         Tag="ps"
                         PointerPressed="OnMouseClick"
                         Width="20" Height="20" Fill="Red"
                         Canvas.Left="{x:Bind ViewModel.ScalePivotOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.ScalePivotOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.EditingScale.Value, Mode=OneWay}"/>
-                    <w:Ellipse 
+                        <w:Ellipse 
                         Tag="pr"
                         PointerPressed="OnMouseClick"
                         Width="20" Height="20" Fill="Red"
                         Canvas.Left="{x:Bind ViewModel.RotatePivotOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.RotatePivotOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.EditingRotation.Value, Mode=OneWay}"/>
-                    <Viewbox
+                        <Viewbox
                         Width="20" Height="20"
                         Canvas.Left="{x:Bind ViewModel.StartPointOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.StartPointOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.StartPointMarkVisibility.Value, Mode=OneWay}">
-                        <Grid>
-                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
-                            <PathIcon Foreground="HotPink" Width="24" Height="24" Data="M 11 7A 2,2,0,0,0,9,9V 11A 2,2,0,0,0,11,13H 13V 15H 9V 17H 13A 2,2,0,0,0,15,15V 13A 2,2,0,0,0,13,11H 11V 9H 15V 7H 11M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2Z"/>
-                        </Grid>
-                    </Viewbox>
-                    <Viewbox
+                            <Grid>
+                                <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                                <PathIcon Foreground="HotPink" Width="24" Height="24" Data="M 11 7A 2,2,0,0,0,9,9V 11A 2,2,0,0,0,11,13H 13V 15H 9V 17H 13A 2,2,0,0,0,15,15V 13A 2,2,0,0,0,13,11H 11V 9H 15V 7H 11M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2Z"/>
+                            </Grid>
+                        </Viewbox>
+                        <Viewbox
                         Tag="end"
                         PointerPressed="OnMouseClick"
                         Width="20" Height="20"
                         Canvas.Left="{x:Bind ViewModel.EndPointOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.EndPointOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.EndPointMarkVisibility.Value, Mode=OneWay}">
-                        <Grid>
-                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
-                            <PathIcon Foreground="YellowGreen" Width="24" Height="24" Data="M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 9 7V 17H 15V 15H 11V 13H 15V 11H 11V 9H 15V 7H 9Z"/>
-                        </Grid>
-                    </Viewbox>
-                    <Viewbox
+                            <Grid>
+                                <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                                <PathIcon Foreground="YellowGreen" Width="24" Height="24" Data="M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 9 7V 17H 15V 15H 11V 13H 15V 11H 11V 9H 15V 7H 9Z"/>
+                            </Grid>
+                        </Viewbox>
+                        <Viewbox
                         Tag="c1"
                         PointerPressed="OnMouseClick"
                         Width="20" Height="20"
                         Canvas.Left="{x:Bind ViewModel.Control1PointOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.Control1PointOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Control1PointMarkVisibility.Value, Mode=OneWay}">
-                        <Grid>
-                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
-                            <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M 11 6.5H 13.1V 17H 11M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 12 4A 8,8,0,0,0,4,12 8,8,0,0,0,12,20 8,8,0,0,0,20,12 8,8,0,0,0,12,4Z"/>
-                        </Grid>
-                    </Viewbox>
-                    <Viewbox
+                            <Grid>
+                                <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                                <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M 11 6.5H 13.1V 17H 11M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 12 4A 8,8,0,0,0,4,12 8,8,0,0,0,12,20 8,8,0,0,0,20,12 8,8,0,0,0,12,4Z"/>
+                            </Grid>
+                        </Viewbox>
+                        <Viewbox
                         Tag="c2"
                         PointerPressed="OnMouseClick"
                         Width="20" Height="20"
                         Canvas.Left="{x:Bind ViewModel.Control2PointOnScreenX.Value, Mode=OneWay}" 
                         Canvas.Top="{x:Bind ViewModel.Control2PointOnScreenY.Value, Mode=OneWay}"
                         Visibility="{x:Bind ViewModel.Control2PointMarkVisibility.Value, Mode=OneWay}">
-                        <Grid>
-                            <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
-                            <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M 9 7H 13A 2,2,0,0,1,15,9V 11A 2,2,0,0,1,13,13H 11V 15H 15V 17H 11L 9 17V 13A 2,2,0,0,1,11,11H 13V 9H 9V 7M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 12 4A 8,8,0,0,0,4,12 8,8,0,0,0,12,20 8,8,0,0,0,20,12 8,8,0,0,0,12,4Z"/>
-                        </Grid>
-                    </Viewbox>
+                            <Grid>
+                                <PathIcon Foreground="Black" Width="24" Height="24" Data="M 12 2.2A 9.8,9.8,0,0,0,2.2,12 9.8,9.8,0,0,0,12,21.8 9.8,9.8,0,0,0,21.8,12 9.8,9.8,0,0,0,12,2.2Z"/>
+                                <PathIcon Foreground="DarkOrange" Width="24" Height="24" Data="M 9 7H 13A 2,2,0,0,1,15,9V 11A 2,2,0,0,1,13,13H 11V 15H 15V 17H 11L 9 17V 13A 2,2,0,0,1,11,11H 13V 9H 9V 7M 12 2A 10,10,0,0,1,22,12 10,10,0,0,1,12,22 10,10,0,0,1,2,12 10,10,0,0,1,12,2M 12 4A 8,8,0,0,0,4,12 8,8,0,0,0,12,20 8,8,0,0,0,20,12 8,8,0,0,0,12,4Z"/>
+                            </Grid>
+                        </Viewbox>
 
-                </Canvas>
+                    </Canvas>
+                </StackPanel>
 
                 <!-- 操作パネル -->
                 <Grid Grid.Column="2"  Margin="0,10,0,0" Visibility="{x:Bind ViewModel.MergeSources.Value, Mode=OneWay, Converter={w:StaticResource NegBoolVisibilityConverter}}">

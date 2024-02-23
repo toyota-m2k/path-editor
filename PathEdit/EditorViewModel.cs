@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using Windows.Globalization.NumberFormatting;
 using System.Collections.Generic;
 using PathEdit.Parser.Command;
+using System.Linq;
 
 namespace PathEdit;
 
@@ -69,6 +70,10 @@ public class EditorViewModel {
     public ReactiveCommand<string> EndEditElementCommand { get; } = new();
     public ReactiveCommand AlterToLCommand { get; } = new();
     public ReactiveCommand CopyCommand { get; } = new();
+
+    public ReactiveCommand ElementCopyCommand { get; } = new();
+    public ReactiveCommand ElementAppendCopyCommand { get; } = new();
+
 
     #endregion
 
@@ -453,6 +458,8 @@ public class EditorViewModel {
         #region Commands
 
         CopyCommand.Subscribe(OnCopy);
+        ElementCopyCommand.Subscribe(OnElementCopy);
+        ElementAppendCopyCommand.Subscribe(OnElementAppendCopy);
         EditCommand.Subscribe(OnEditElement);
         InsertCommand.Subscribe(OnInsertElement);
         DeleteCommand.Subscribe(OnDeleteElement);
@@ -673,6 +680,48 @@ public class EditorViewModel {
         }
     }
 
+    private void OnElementAppendCopy() {
+        var path = SelectedElement.Value?.Element?.Value?.Current?.ToString();
+        if (string.IsNullOrWhiteSpace(path)) {
+            return;
+        }
+
+        var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
+        if (dataPackageView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text)) {
+            try {
+                var current = dataPackageView.GetTextAsync().GetAwaiter().GetResult();
+                if(IsPurePath(current)) {
+                    if(current.EndsWith(path)) {
+                        return; 
+                    }
+                    path = current + " " + path;
+                }
+                var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+                dataPackage.SetText(path);
+                Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+            }
+            catch (Exception) {
+                // Ignore or handle exception as needed.
+            }
+        }
+    }
+
+    private void OnElementCopy() {
+        try {
+            var path = SelectedElement.Value?.Element?.Value?.Current?.ToString();
+            if(string.IsNullOrWhiteSpace(path)) {
+                return;
+            }
+            var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+            dataPackage.SetText(path);
+            Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+        }
+        catch (Exception e) {
+            LoggerEx.error(e);
+        }
+    }
+
+
     private void OnDeleteElement(PathElementViewModel model) {
         LoggerEx.debug($"OnDeleteElement: {model.CommandName.Value}");
         if(PathElementList.Count==1) {
@@ -746,7 +795,8 @@ public class EditorViewModel {
         }
     }
 
-    static Regex pathPattern = new Regex("""(?:\s+d|:pathData|\s+Data)="(?<path>[^"]+)["]""");
+    static Regex svgPathPattern = new Regex(@"([MmZzLlHhVvCcSsQqTtAa][\s\d\.\-eE,]*)+");
+    static Regex extPathPattern = new Regex("""(?:\s+d|:pathData|\s+Data)="(?<path>[^"]+)["]""");
     //static Regex pathPattern2 = new Regex("""["](?<path>[^"]+)["]""");
 
     /**
@@ -757,39 +807,38 @@ public class EditorViewModel {
      * - Androidのlayout.xml中の pathData 文字列
      * - 二重引用符で囲まれたPath文字列
      */
-    public List<string>? CheckAndExtractPath(string? src) {
-        if (string.IsNullOrWhiteSpace(src)) {
+    public static List<string>? CheckAndExtractPath(string? src) {
+        if(string.IsNullOrWhiteSpace(src)) {
             return null;
         }
-        src = src.Trim();
-        if(src.StartsWith("\"")) {
-            src = src.Substring(1);
-        }
-        if(src.EndsWith("\"")) {
-            src = src.Substring(0, src.Length - 1);
+
+        // SVGファイル形式、XAML <PathIcon> 中の Data 文字列、Androidのlayout.xml中の pathData 文字列として抽出する
+        var matches = extPathPattern.Matches(src);
+        if (matches.Count > 0) {
+            return matches.Select(it => it.Success ? it.Groups["path"].Value : "").Where(it => !string.IsNullOrWhiteSpace(it) && PathParser.Check(it)).ToList();
         }
 
-        try {
-            var r = PathDrawable.Parse(src).Compose();
-            if (!string.IsNullOrWhiteSpace(r)) {
-                return new List<string>() { r };
-            }
-        }
-        catch (Exception) {
-        }
-
-        var m = pathPattern.Matches(src);
-        if (m.Count > 0) {
-            var list = new List<string>();
-            foreach (Match match in m) {
-                var path = match.Groups["path"].Value;
-                if (!string.IsNullOrEmpty(path)) {
-                    list.Add(path);
-                }
-            }
-            return list;
+        // 汎用的なパス文字列として抽出する
+        matches = svgPathPattern.Matches(src);
+        if (matches.Count > 0) {
+            return matches.Select(it => it.Success ? it.Value : "").Where(it => !string.IsNullOrWhiteSpace(it) && PathParser.Check(it)).ToList();
         }
         return null;
+    }
+
+    public static bool IsPurePath(string? src) {
+        src = src?.Trim();
+        if (string.IsNullOrWhiteSpace(src)) {
+            return false;
+        }
+        var matches = svgPathPattern.Matches(src);
+        if(matches.Count!=1) {
+            return false;
+        }
+        if(0<matches[0].Index || matches[0].Length<src.Length) {
+            return false;
+        }
+        return true;
     }
 
     public void ResetAllStates() {

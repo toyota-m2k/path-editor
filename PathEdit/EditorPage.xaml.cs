@@ -121,7 +121,7 @@ public sealed partial class EditorPage : Page {
 
     private bool PasteCore(string pathString) {
         try {
-            var paths = ViewModel.CheckAndExtractPath(pathString);
+            var paths = EditorViewModel.CheckAndExtractPath(pathString);
             if (paths != null && paths.Count > 0) {
                 var first = true;
                 foreach (var path in paths) {

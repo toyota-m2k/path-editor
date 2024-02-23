@@ -19,6 +19,7 @@ public class PathElement {
 
     public string CommandName => Current.CommandName;
     public string DispalyName => Current.DispalyName;
+    public string ElementPath => Current.ToString();
     public Point StartPoint => Prev?.LastResolvedPoint ?? new Point(0, 0);
     public Point EndPoint => Current.EndPoint;
     public Point EndPointAbs => Current.ResolveRelativePoint(Current.CorrectedEndPoint(Prev), Prev?.LastResolvedPoint);

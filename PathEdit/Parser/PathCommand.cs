@@ -27,6 +27,13 @@ public abstract class PathCommand {
     public abstract void DrawTo(IGraphics graphics, PathCommand? prevCommand);
     public abstract void ComposeTo(StringBuilder sb, PathCommand? prevCommand);
 
+    public override string ToString() {
+        var sb = new StringBuilder();
+        ComposeTo(sb, null);
+        return sb.ToString();
+    }
+
+
     public virtual void Transform(Matrix matrix, PathCommand? prevCommand) {
         var endPoint = TransformPoint(matrix, EndPoint, prevCommand?.LastResolvedPoint);
         EndPoint = endPoint;
