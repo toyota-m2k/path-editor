@@ -160,9 +160,8 @@ public class MultiSource {
         }
         var orgIndex = CurrentIndex;
         if (index==CurrentIndex) {
-            CurrentIndex--;
-            if(CurrentIndex <0) {
-                CurrentIndex = 0;
+            if (CurrentIndex > 0) {
+                CurrentIndex--;
             }
         }
         var removing = _sources[index];
