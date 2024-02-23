@@ -53,7 +53,7 @@ public class MultiSource {
     private ObservableCollection<Source> _sources;
     public IReadOnlyList<Source> SourceList => _sources;
 
-    private ReactiveProperty<Source?> _currentSource { get; } = new();
+    private ReactiveProperty<Source?> _currentSource { get; } = new(null, ReactivePropertyMode.RaiseLatestValueOnSubscribe);
 
     private int _currentIndex = 0;
     public int CurrentIndex {
@@ -124,10 +124,12 @@ public class MultiSource {
     }
 
     public bool SetCurrentIndex(int index) {
-        if (index < 0 || index >= _sources.Count || CurrentIndex == index) {
+        if (index < 0 || index >= _sources.Count) {
             return false;
         }
-        UndoBuffer.PushSetCurrent(CurrentIndex, index);
+        if (CurrentIndex != index) {
+            UndoBuffer.PushSetCurrent(CurrentIndex, index);
+        }
         CurrentIndex = index;
         return true;
     }
@@ -159,14 +161,18 @@ public class MultiSource {
             return;
         }
         var orgIndex = CurrentIndex;
-        if (index==CurrentIndex) {
-            if (CurrentIndex > 0) {
-                CurrentIndex--;
-            }
-        }
         var removing = _sources[index];
         _sources.RemoveAt(index);
         UndoBuffer.PushRemoveSource(index, removing, orgIndex);
+
+        if (index == CurrentIndex) {
+            if (CurrentIndex > 0) {
+                CurrentIndex--;
+            }
+            else {
+                CurrentIndex = index;    // 選択状態を更新するため
+            }
+        }
     }
 
     public void ReOrder(int from, int to) {
