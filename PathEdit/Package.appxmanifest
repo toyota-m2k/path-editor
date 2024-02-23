@@ -9,7 +9,7 @@
 
   <Identity
     Name="5675c537-18c0-4f40-b90b-03775e6264e2"
-    Publisher="CN=mitsu" Version="1.0.0.0"
+    Publisher="CN=mitsu" Version="1.1.0.0"
      />
 
   <mp:PhoneIdentity PhoneProductId="5675c537-18c0-4f40-b90b-03775e6264e2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>

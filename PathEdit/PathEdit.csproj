@@ -16,8 +16,8 @@
     <ApplicationIcon>Assets/program-icon.ico</ApplicationIcon>
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 	<Version></Version>
-	<AssemblyVersion>1.0.0.0</AssemblyVersion>
-	<FileVersion>1.0.0.0</FileVersion>
+	<AssemblyVersion>1.1.0.0</AssemblyVersion>
+	<FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="EditorPage.xaml" />
