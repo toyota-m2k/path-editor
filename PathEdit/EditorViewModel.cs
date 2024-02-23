@@ -747,7 +747,7 @@ public class EditorViewModel {
     }
 
     static Regex pathPattern = new Regex("""(?:\s+d|:pathData|\s+Data)="(?<path>[^"]+)["]""");
-    static Regex pathPattern2 = new Regex("""["](?<path>[^"]+)["]""");
+    //static Regex pathPattern2 = new Regex("""["](?<path>[^"]+)["]""");
 
     /**
      * 文字列からパス文字列を抽出する。
@@ -757,26 +757,39 @@ public class EditorViewModel {
      * - Androidのlayout.xml中の pathData 文字列
      * - 二重引用符で囲まれたPath文字列
      */
-    public string? CheckAndExtractPath(string? src) {
+    public List<string>? CheckAndExtractPath(string? src) {
         if (string.IsNullOrWhiteSpace(src)) {
             return null;
         }
+        src = src.Trim();
+        if(src.StartsWith("\"")) {
+            src = src.Substring(1);
+        }
+        if(src.EndsWith("\"")) {
+            src = src.Substring(0, src.Length - 1);
+        }
+
         try {
             var r = PathDrawable.Parse(src).Compose();
             if (!string.IsNullOrWhiteSpace(r)) {
-                return r;
+                return new List<string>() { r };
             }
         }
         catch (Exception) {
         }
 
-        var m1 = pathPattern.Match(src);
-        var path = m1.Groups["path"].Value;
-        if (!string.IsNullOrEmpty(path)) {
-            return path;
+        var m = pathPattern.Matches(src);
+        if (m.Count > 0) {
+            var list = new List<string>();
+            foreach (Match match in m) {
+                var path = match.Groups["path"].Value;
+                if (!string.IsNullOrEmpty(path)) {
+                    list.Add(path);
+                }
+            }
+            return list;
         }
-        var m2 = pathPattern2.Match(src);
-        return m2.Groups["path"].Value;
+        return null;
     }
 
     public void ResetAllStates() {

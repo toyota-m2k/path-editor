@@ -7,6 +7,7 @@ using PathEdit.Graphics;
 using PathEdit.Parser;
 using System;
 using System.Linq;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI;
@@ -118,6 +119,29 @@ public sealed partial class EditorPage : Page {
 
     #region Clipboard / Drag & Drop
 
+    private bool PasteCore(string pathString) {
+        try {
+            var paths = ViewModel.CheckAndExtractPath(pathString);
+            if (paths != null && paths.Count > 0) {
+                var first = true;
+                foreach (var path in paths) {
+                    if (first && (string.IsNullOrWhiteSpace(ViewModel.SourcePath.Value) || ViewModel.SourcePath.Value == "M 0 0")) {
+                        ViewModel.SourcePath.Value = path;
+                    }
+                    else {
+                        ViewModel.AddSourceCommand.Execute(path);
+                    }
+                    first = false;
+                }
+                return true;
+            }
+        }
+        catch (Exception) {
+            // Ignore or handle exception as needed.
+        }
+        return false;
+    }
+
     private bool Paste() {
         if (!ViewModel.IsSourcePathEditable.Value) {
             return false; // パス要素編集中はソース変更不可とする
@@ -126,16 +150,7 @@ public sealed partial class EditorPage : Page {
         if (dataPackageView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text)) {
             try {
                 var text = dataPackageView.GetTextAsync().GetAwaiter().GetResult();
-                //var text = await dataPackageView.GetTextAsync();
-                var path = ViewModel.CheckAndExtractPath(text);
-                if (!string.IsNullOrWhiteSpace(path)) {
-                    if(string.IsNullOrWhiteSpace  (ViewModel.SourcePath.Value) || ViewModel.SourcePath.Value == "M 0 0") {
-                        ViewModel.SourcePath.Value = path;
-                    } else {
-                        ViewModel.AddSourceCommand.Execute(path);
-                    }
-                    return true;
-                }
+                return PasteCore(text);
             }
             catch (Exception) {
                 // Ignore or handle exception as needed.
@@ -182,11 +197,7 @@ public sealed partial class EditorPage : Page {
         if (e.DataView.Contains(Windows.ApplicationModel.DataTransfer.StandardDataFormats.Text)) {
             try {
                 var text = e.DataView.GetTextAsync().AsTask().Result;
-                var path = ViewModel.CheckAndExtractPath(text);
-                if (path != null) {
-                    ViewModel.SourcePath.Value = path;
-                    e.Handled = true;
-                }
+                e.Handled = PasteCore(text);
             }
             catch (Exception) {
                 // Ignore or handle exception as needed.
@@ -201,10 +212,7 @@ public sealed partial class EditorPage : Page {
                 e.Handled = true;
                 DispatcherQueue.TryEnqueue(async () => {
                     var s = await FileIO.ReadTextAsync(file);
-                    var path = ViewModel.CheckAndExtractPath(s);
-                    if (path != null) {
-                        ViewModel.SourcePath.Value = path;
-                    }
+                    e.Handled = PasteCore(s);
                 });
             }
         }
