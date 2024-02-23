@@ -6,7 +6,7 @@ using System.Windows.Media;
 
 namespace PathEdit.Parser.Command;
 public class CloseCommand : PathCommand {
-    public CloseCommand() : base(isRelative:false, new Point(0, 0)) {
+    public CloseCommand() : base(isRelative:true, new Point(0, 0)) {
     }
 
     public override PathCommand Clone() {
@@ -15,6 +15,8 @@ public class CloseCommand : PathCommand {
 
     public override void DrawTo(IGraphics graphics, PathCommand? prevCommand) {
         graphics.ClosePath();
+        // ZコマンドはCurrent Pointを移動しない。
+        LastResolvedPoint = prevCommand?.LastResolvedPoint ?? new Point(0, 0);
     }
 
     public override string CommandName => "Z";
